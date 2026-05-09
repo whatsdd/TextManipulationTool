@@ -1,359 +1,428 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-
-<title>Tool</title>
+<meta charset="UTF-8">
+<title>Text Manipulation Tool</title>
 
 <hta:application icon="icon.gif" innerBorder="no" maximizeButton="yes" selection="no"></hta:application>
 
 <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-BODY		{MARGIN:1;}
+  body {
+    background: #ececec;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 13px;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    height: 100vh;
+    padding: 6px;
+    color: #1d1d1f;
+  }
 
-TEXTAREA	{WIDTH:100%;HEIGHT:600;font-family:fixedsys;overflow:scroll;border:1px solid #7F9DB9;}
+  #toolbar {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 5px 6px;
+    background: #f5f5f7;
+    border: 1px solid #d1d1d6;
+    border-radius: 8px;
+    margin-bottom: 5px;
+  }
 
-.t		{WIDTH:100%;text-indent:0;font-family:fixedsys;border:1px solid #7F9DB9;background:#FFFFFF;color:#000000;}
+  .btn {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 12px;
+    padding: 4px 10px;
+    border: 1px solid #c7c7cc;
+    background: #ffffff;
+    color: #1d1d1f;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-right: 3px;
+    margin-bottom: 2px;
+  }
+  .btn:hover  { background: #e5e5ea; border-color: #aeaeb2; }
+  .btn:active { background: #d1d1d6; border-color: #8e8e93; }
 
-Label		{font-family:microsoft sans serif;font-size:12;Height:20;padding:1;border:1px solid buttonface;cursor:pointer;}
+  .btn-group {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    padding: 0 4px;
+    border-left: 1px solid #d1d1d6;
+    margin-right: 2px;
+  }
+  .btn-group:first-child { border-left: none; padding-left: 0; }
 
+  .group-label {
+    font-size: 10px;
+    color: #8e8e93;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-right: 4px;
+    white-space: nowrap;
+  }
+
+  #inputs {
+    display: -ms-flexbox;
+    display: flex;
+    margin-bottom: 5px;
+  }
+
+  .input-wrap {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex: 1;
+    flex: 1;
+    background: #f5f5f7;
+    border: 1px solid #d1d1d6;
+    border-radius: 6px;
+    padding: 4px 8px;
+  }
+  .input-wrap:first-child { margin-right: 5px; }
+
+  .input-wrap label {
+    font-size: 11px;
+    color: #8e8e93;
+    white-space: nowrap;
+    margin-right: 5px;
+  }
+
+  .t {
+    -ms-flex: 1;
+    flex: 1;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+    border: none;
+    background: transparent;
+    color: #1d1d1f;
+    outline: none;
+  }
+
+  #D {
+    -ms-flex: 1;
+    flex: 1;
+    width: 100%;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    border: 1px solid #d1d1d6;
+    border-radius: 6px;
+    padding: 8px;
+    resize: none;
+    background: #ffffff;
+    color: #1d1d1f;
+    outline: none;
+    line-height: 1.5;
+    tab-size: 4;
+    margin-bottom: 5px;
+  }
+  #D:focus { border-color: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.2); }
+
+  #footer {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -ms-flex-align: center;
+    align-items: center;
+    font-size: 10px;
+    color: #8e8e93;
+    padding: 0 2px;
+  }
+
+  #status { font-style: italic; }
 </style>
-
-
-
-<script language="javascript" Defer>
-
-window.onresize = window.onload = function (){D.style.height=document.body.offsetHeight-D.offsetTop-1}
-
-L = document.getElementsByTagName("label");
-
-for(i=0;i<L.length;i++){
-
-	L[i].onMouseOver = "this.style.background='#CCCCCC';this.style.border='1px solid #000000'";
-
-	L[i].onMouseOut  = "this.style.background='';this.style.border='1px solid buttonface'";
-
-	L[i].onMouseDown = "this.style.background='#BBBBBB';this.style.border='1px solid #000000'";
-
-	L[i].onMouseUp   = L[i].onMouseOver;
-
-	L[i].outerHTML   = L[i].outerHTML;
-
-}
-
-document.onkeydown = function(){
-
-if(event.keyCode==9 && event.srcElement==D){
-
-document.selection.createRange().text="	";
-
-return false;
-
-}
-
-};
-
-
-
-function insert(){
-
-	V = D.value
-
-	V = V.split("\r\n")
-
-	for (i=0;i<V.length;i++){
-
-		V[i] = V[i]==""?"":X.value+V[i]+Y.value
-
-	}
-
-	D.value = V.join("\r\n")
-
-}
-
-
-
-function replace(){
-
-if(!event.ctrlKey){
-
-	V = D.value
-
-	V = V.split(X.value)
-
-	V = V.join(Y.value)
-
-	D.value = V
-
-} else {
-
-
-
-	V = D.value
-
-	V = V.split(X.value)
-
-
-
-	for (i=1;i<V.length;i++){
-
-		V[i] = eval(Y.value) + V[i] //.split("$n").join(i) + V[i]
-
-	}
-
-	V = V.join("")
-
-	D.value = V
-
-
-
-
-
-}
-
-
-
-}
-
-
-
-function deleteBefore(){
-
-	V = D.value
-
-	V = V.split("\r\n")
-
-	for (i=0;i<V.length;i++){
-
-		V[i] = V[i].split(X.value)
-
-		V[i].length>1?V[i].shift():""
-
-		V[i] = V[i].join(X.value)
-
-	}
-
-	D.value = V.join("\r\n")
-
-}
-
-
-
-function deleteAfter(){
-
-	V = D.value
-
-	V = V.split("\r\n")
-
-	for (i=0;i<V.length;i++){
-
-		V[i] = V[i].split(X.value)
-
-		V[i].length>1?V[i].pop():""
-
-		V[i] = V[i].join(X.value)
-
-	}
-
-	D.value = V.join("\r\n")
-
-}
-
-
-
-function sort(){
-
-	V = D.value
-
-	V = V.split("\r\n")
-
-	V = V.sort()
-
-	D.value = V.join("\r\n")
-
-
-
-	if(event.ctrlKey)reverse()
-
-
-
-}
-
-
-
-function reverse(){
-
-	V = D.value
-
-	V = V.split("\r\n")
-
-	V = V.reverse()
-
-	D.value = V.join("\r\n")
-
-}
-
-
-
-function setSelRange(inputEl, selStart, selEnd){if(inputEl.setSelectionRange){inputEl.focus();inputEl.setSelectionRange(selStart,selEnd);}else if(inputEl.createTextRange){var range=inputEl.createTextRange();range.collapse(true);range.moveEnd('character',selEnd);range.moveStart('character',selStart);range.select();}}
-
-
-
-function goto(){
-
-	V = D.value
-
-	V = V.split("\r\n")
-
-	if (V.length<X.value){alert("Out of range");return}
-
-	n = 0;
-
-	for(i=0;i<X.value-1;i++){n+=V[i].length+1;}
-
-	D.focus()
-
-	setSelRange(D,n,n)
-
-}
-
-
-
-function deleteInBetween(){
-
-	V = D.value
-
-	V = V.split("\r\n")
-
-	for (i=0;i<V.length;i++){
-
-		V[i] = V[i].split(X.value)
-
-		XX   = V[i].shift()
-
-		V[i] = V[i].join(X.value)
-
-		V[i] = V[i].split(Y.value)
-
-		V[i].shift()
-
-		V[i] = V[i].join(Y.value)
-
-		V[i] = XX + V[i]
-
-	}
-
-	D.value = V.join("\r\n")
-
-}
-
-
-
-Array.prototype.unique =
-
-  function() {
-
-    var a = [];
-
-    var l = this.length;
-
-    for(var i=0; i<l; i++) {
-
-      for(var j=i+1; j<l; j++) {
-
-        // If this[i] is found later in the array
-
-        if (this[i] === this[j])
-
-          j = ++i;
-
-      }
-
-      a.push(this[i]);
-
-    }
-
-    return a;
-
-  };
-
-
-
-function unique(){D.value = D.value.split("\r\n").unique().join("\r\n");}
-
-
-
-function remBlanks(){
-
-	D.value = D.value.split(/[\r\n]+/).join("\r\n");
-
-}
-
-
-function sort_list()
-{
-	unique();
-	remBlanks();
-
-	var lines = D.value.split("\r\n");
-
-	var result = "";
-
-	for (var i=0; i<lines.length; i++)
-	{
-		result += (i % 2 == 0 ? lines[i/2] : lines[lines.length-(i-1)/2 - 1]) + "\r\n";
-	}
-
-	D.value = result;
-}
-
-
-</script>
-
 </head>
+<body>
 
-<body bgcolor="buttonface" scroll="no">
+<div id="toolbar">
+  <div class="btn-group">
+    <span class="group-label">Edit</span>
+    <button class="btn" data-action="insert"          title="Prepend X and append Y to each non-empty line">Insert</button>
+    <button class="btn" data-action="replace"         title="Replace all X with Y  (Ctrl-click: evaluate Y as expression)">Replace</button>
+  </div>
+  <div class="btn-group">
+    <span class="group-label">Delete</span>
+    <button class="btn" data-action="deleteBefore"    title="Delete everything before (and including) the first X on each line">Before X</button>
+    <button class="btn" data-action="deleteInBetween" title="Delete text between X and Y on each line">X &hellip; Y</button>
+    <button class="btn" data-action="deleteAfter"     title="Delete everything after (and including) the last X on each line">After X</button>
+  </div>
+  <div class="btn-group">
+    <span class="group-label">Order</span>
+    <button class="btn" data-action="sortLines"       title="Sort lines A to Z  (Ctrl-click: sort Z to A)">Sort</button>
+    <button class="btn" data-action="reverseLines"    title="Reverse line order">Reverse</button>
+  </div>
+  <div class="btn-group">
+    <span class="group-label">Case</span>
+    <button class="btn" data-action="uppercase"       title="Convert all text to UPPER CASE">Uppercase</button>
+    <button class="btn" data-action="lowercase"       title="Convert all text to lower case">Lowercase</button>
+  </div>
+  <div class="btn-group">
+    <span class="group-label">Clean</span>
+    <button class="btn" data-action="uniqueLines"     title="Remove duplicate lines (keeps first occurrence)">Unique</button>
+    <button class="btn" data-action="removeBlanks"    title="Remove all empty lines">Remove Blanks</button>
+    <button class="btn" data-action="sortList"        title="Deduplicate, remove blanks, then interleave lines">List Sorter</button>
+  </div>
+  <div class="btn-group">
+    <span class="group-label">Encode</span>
+    <button class="btn" data-action="encodeURL"       title="URL-encode the entire text (encodeURIComponent)">Encode URL</button>
+    <button class="btn" data-action="decodeURL"       title="URL-decode the entire text (decodeURIComponent)">Decode URL</button>
+  </div>
+  <div class="btn-group">
+    <span class="group-label">Nav</span>
+    <button class="btn" data-action="gotoLine"        title="Jump to line number specified in X field">Go to Line</button>
+  </div>
+</div>
+
+<div id="inputs">
+  <div class="input-wrap">
+    <label for="X">X&nbsp;=</label>
+    <input id="X" class="t" value="&" spellcheck="false" autocomplete="off">
+  </div>
+  <div class="input-wrap">
+    <label for="Y">Y&nbsp;=</label>
+    <input id="Y" class="t" value="'\n'" spellcheck="false" autocomplete="off">
+  </div>
+</div>
+
+<textarea id="D" wrap="off" spellcheck="false" placeholder="Paste or type your text here..."></textarea>
+
+<div id="footer">
+  <span id="status">Ready</span>
+  <span>Text Manipulation Tool &mdash; Windows Edition &nbsp;|&nbsp; Original by <strong>Rashid Saleem</strong></span>
+</div>
 
 <script>
+'use strict';
 
-M = [
+var D      = document.getElementById('D');
+var Xin    = document.getElementById('X');
+var Yin    = document.getElementById('Y');
+var status = document.getElementById('status');
 
-	['insert', 'insert()'],
+function X() { return Xin.value; }
+function Y() { return Yin.value; }
 
-	['replace', 'replace()'],
-
-	['delete', 'deleteBefore()'],
-
-	['delete', 'deleteInBetween()'],
-
-	['delete', 'deleteAfter()'],
-
-	['sort', 'sort()'],
-
-	['reverse', 'reverse()'],
-
-	['escape', 'D.value=escape(D.value)'],
-
-	['unescape', 'D.value=unescape(D.value)'],
-
-	['uppercase', 'D.value=D.value.toUpperCase()'],
-
-	['lowercase', 'D.value=D.value.toLowerCase()'],
-
-	['unique', 'unique()'],
-
-	['removeblanks', 'remBlanks()'],
-	['list-sorter', 'sort_list()']
-
-];
-
-d = '';
-
-for(i=0;i<M.length;i++){
-
-d+= "<label ondblclick='"+M[i][1]+"' onclick='"+M[i][1]+"'>&nbsp;&nbsp;" + M[i][0] + "&nbsp;&nbsp;</\label>"
-
+function getLines() {
+  return D.value.split(/\r\n|\r|\n/);
 }
 
-document.write(d)
+function setLines(lines) {
+  D.value = lines.join('\n');
+  updateStatus();
+}
 
-</script><input id="X" class="t" value="&"></input><input id="Y" class="t" value="'\r\n'"></input><textarea wrap="off" id="D"></textarea></body></html>
+function getVal() { return D.value; }
+function setVal(v) { D.value = v; updateStatus(); }
+
+function updateStatus() {
+  var lines = getLines();
+  var chars = D.value.length;
+  status.textContent = lines.length + ' line' + (lines.length === 1 ? '' : 's') +
+    ', ' + chars + ' char' + (chars === 1 ? '' : 's');
+}
+
+// ── Operations ────────────────────────────────────────────────────────────────
+
+function insert() {
+  var lines = getLines();
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i] !== '') {
+      lines[i] = X() + lines[i] + Y();
+    }
+  }
+  setLines(lines);
+}
+
+function replace(e) {
+  var isCmd = e.ctrlKey || e.metaKey;
+  if (!isCmd) {
+    setVal(getVal().split(X()).join(Y()));
+  } else {
+    var parts = getVal().split(X());
+    for (var i = 1; i < parts.length; i++) {
+      /* jshint evil:true */
+      parts[i] = eval(Y()) + parts[i]; // eslint-disable-line no-eval
+    }
+    setVal(parts.join(''));
+  }
+}
+
+function deleteBefore() {
+  var lines = getLines();
+  for (var i = 0; i < lines.length; i++) {
+    var parts = lines[i].split(X());
+    if (parts.length > 1) parts.shift();
+    lines[i] = parts.join(X());
+  }
+  setLines(lines);
+}
+
+function deleteAfter() {
+  var lines = getLines();
+  for (var i = 0; i < lines.length; i++) {
+    var parts = lines[i].split(X());
+    if (parts.length > 1) parts.pop();
+    lines[i] = parts.join(X());
+  }
+  setLines(lines);
+}
+
+function deleteInBetween() {
+  var lines = getLines();
+  for (var i = 0; i < lines.length; i++) {
+    var xparts = lines[i].split(X());
+    var xx = xparts.shift();
+    var rest = xparts.join(X());
+    var yparts = rest.split(Y());
+    yparts.shift();
+    lines[i] = xx + yparts.join(Y());
+  }
+  setLines(lines);
+}
+
+function sortLines(e) {
+  var isCmd = e.ctrlKey || e.metaKey;
+  var lines = getLines().sort();
+  setLines(lines);
+  if (isCmd) reverseLines();
+}
+
+function reverseLines() {
+  setLines(getLines().reverse());
+}
+
+function uniqueLines() {
+  var seen = Object.create(null);
+  var result = getLines().filter(function(line) {
+    if (line in seen) return false;
+    seen[line] = true;
+    return true;
+  });
+  setLines(result);
+}
+
+function removeBlanks() {
+  setLines(getLines().filter(function(l) { return l !== ''; }));
+}
+
+function sortList() {
+  uniqueLines();
+  removeBlanks();
+  var lines = getLines();
+  var result = [];
+  for (var i = 0; i < lines.length; i++) {
+    result.push(i % 2 === 0 ? lines[i / 2] : lines[lines.length - (i - 1) / 2 - 1]);
+  }
+  setLines(result);
+}
+
+function encodeURL() {
+  setVal(encodeURIComponent(getVal()));
+}
+
+function decodeURL() {
+  try {
+    setVal(decodeURIComponent(getVal()));
+  } catch (e) {
+    setVal(getVal());
+  }
+}
+
+function uppercase() { setVal(getVal().toUpperCase()); }
+function lowercase() { setVal(getVal().toLowerCase()); }
+
+function gotoLine() {
+  var lines = getLines();
+  var n = parseInt(X(), 10);
+  if (isNaN(n) || n < 1 || n > lines.length) {
+    alert('Line ' + n + ' is out of range (1-' + lines.length + ')');
+    return;
+  }
+  var pos = 0;
+  for (var i = 0; i < n - 1; i++) { pos += lines[i].length + 1; }
+  D.focus();
+  D.setSelectionRange(pos, pos);
+}
+
+// ── Action dispatch ───────────────────────────────────────────────────────────
+
+// IE11 does not support Element.closest() — walk up the DOM manually
+function getActionTarget(el) {
+  while (el && el !== document) {
+    if (el.getAttribute && el.getAttribute('data-action')) return el;
+    el = el.parentNode;
+  }
+  return null;
+}
+
+var actions = {
+  insert:          function(e) { insert(); },
+  replace:         function(e) { replace(e); },
+  deleteBefore:    function(e) { deleteBefore(); },
+  deleteInBetween: function(e) { deleteInBetween(); },
+  deleteAfter:     function(e) { deleteAfter(); },
+  sortLines:       function(e) { sortLines(e); },
+  reverseLines:    function(e) { reverseLines(); },
+  uppercase:       function(e) { uppercase(); },
+  lowercase:       function(e) { lowercase(); },
+  uniqueLines:     function(e) { uniqueLines(); },
+  removeBlanks:    function(e) { removeBlanks(); },
+  sortList:        function(e) { sortList(); },
+  encodeURL:       function(e) { encodeURL(); },
+  decodeURL:       function(e) { decodeURL(); },
+  gotoLine:        function(e) { gotoLine(); },
+};
+
+document.getElementById('toolbar').addEventListener('click', function(e) {
+  var btn = getActionTarget(e.target);
+  if (!btn) return;
+  var fn = actions[btn.getAttribute('data-action')];
+  if (fn) fn(e);
+});
+
+// ── Textarea helpers ──────────────────────────────────────────────────────────
+
+D.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    var start = D.selectionStart;
+    var end   = D.selectionEnd;
+    D.value = D.value.substring(0, start) + '\t' + D.value.substring(end);
+    D.selectionStart = D.selectionEnd = start + 1;
+  }
+});
+
+D.addEventListener('input', updateStatus);
+
+// ── Layout ────────────────────────────────────────────────────────────────────
+
+function resize() {
+  var toolbar = document.getElementById('toolbar');
+  var inputs  = document.getElementById('inputs');
+  var footer  = document.getElementById('footer');
+  var usedHeight = toolbar.offsetHeight +
+                   inputs.offsetHeight  +
+                   footer.offsetHeight  +
+                   6 * 5;
+  D.style.height = Math.max(100, window.innerHeight - usedHeight) + 'px';
+}
+
+window.addEventListener('resize', resize);
+window.addEventListener('load', function() {
+  resize();
+  updateStatus();
+  D.focus();
+});
+</script>
+</body>
+</html>
