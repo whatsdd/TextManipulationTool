@@ -2,40 +2,35 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Text Manipulation Tool</title>
-
-<hta:application icon="icon.gif" innerBorder="no" maximizeButton="yes" selection="no"></hta:application>
-
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background: #ececec;
-    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
     font-size: 13px;
-    display: -ms-flexbox;
     display: flex;
-    -ms-flex-direction: column;
     flex-direction: column;
     height: 100vh;
     padding: 6px;
+    gap: 5px;
     color: #1d1d1f;
   }
 
   #toolbar {
-    display: -ms-flexbox;
     display: flex;
-    -ms-flex-wrap: wrap;
     flex-wrap: wrap;
+    gap: 4px;
     padding: 5px 6px;
     background: #f5f5f7;
     border: 1px solid #d1d1d6;
     border-radius: 8px;
-    margin-bottom: 5px;
   }
 
   .btn {
-    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
     font-size: 12px;
     padding: 4px 10px;
     border: 1px solid #c7c7cc;
@@ -44,20 +39,17 @@
     border-radius: 5px;
     cursor: pointer;
     white-space: nowrap;
-    margin-right: 3px;
-    margin-bottom: 2px;
+    transition: background 0.1s, border-color 0.1s;
   }
   .btn:hover  { background: #e5e5ea; border-color: #aeaeb2; }
   .btn:active { background: #d1d1d6; border-color: #8e8e93; }
 
   .btn-group {
-    display: -ms-flexbox;
     display: flex;
-    -ms-flex-align: center;
     align-items: center;
+    gap: 3px;
     padding: 0 4px;
     border-left: 1px solid #d1d1d6;
-    margin-right: 2px;
   }
   .btn-group:first-child { border-left: none; padding-left: 0; }
 
@@ -66,41 +58,34 @@
     color: #8e8e93;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    padding-right: 4px;
-    white-space: nowrap;
+    padding-right: 2px;
   }
 
   #inputs {
-    display: -ms-flexbox;
     display: flex;
-    margin-bottom: 5px;
+    gap: 5px;
   }
 
   .input-wrap {
-    display: -ms-flexbox;
     display: flex;
-    -ms-flex-align: center;
     align-items: center;
-    -ms-flex: 1;
     flex: 1;
+    gap: 5px;
     background: #f5f5f7;
     border: 1px solid #d1d1d6;
     border-radius: 6px;
     padding: 4px 8px;
   }
-  .input-wrap:first-child { margin-right: 5px; }
 
   .input-wrap label {
     font-size: 11px;
     color: #8e8e93;
     white-space: nowrap;
-    margin-right: 5px;
   }
 
   .t {
-    -ms-flex: 1;
     flex: 1;
-    font-family: 'Consolas', 'Courier New', monospace;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
     font-size: 12px;
     border: none;
     background: transparent;
@@ -109,10 +94,9 @@
   }
 
   #D {
-    -ms-flex: 1;
     flex: 1;
     width: 100%;
-    font-family: 'Consolas', 'Courier New', monospace;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
     font-size: 13px;
     border: 1px solid #d1d1d6;
     border-radius: 6px;
@@ -123,16 +107,12 @@
     outline: none;
     line-height: 1.5;
     tab-size: 4;
-    margin-bottom: 5px;
   }
   #D:focus { border-color: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.2); }
 
   #footer {
-    display: -ms-flexbox;
     display: flex;
-    -ms-flex-pack: justify;
     justify-content: space-between;
-    -ms-flex-align: center;
     align-items: center;
     font-size: 10px;
     color: #8e8e93;
@@ -147,39 +127,39 @@
 <div id="toolbar">
   <div class="btn-group">
     <span class="group-label">Edit</span>
-    <button class="btn" data-action="insert"          title="Prepend X and append Y to each non-empty line">Insert</button>
-    <button class="btn" data-action="replace"         title="Replace all X with Y  (Ctrl-click: evaluate Y as expression)">Replace</button>
+    <button class="btn" data-action="insert"         title="Prepend X and append Y to each non-empty line">Insert</button>
+    <button class="btn" data-action="replace"        title="Replace all X with Y  (⌘-click: evaluate Y as expression)">Replace</button>
   </div>
   <div class="btn-group">
     <span class="group-label">Delete</span>
-    <button class="btn" data-action="deleteBefore"    title="Delete everything before (and including) the first X on each line">Before X</button>
-    <button class="btn" data-action="deleteInBetween" title="Delete text between X and Y on each line">X &hellip; Y</button>
-    <button class="btn" data-action="deleteAfter"     title="Delete everything after (and including) the last X on each line">After X</button>
+    <button class="btn" data-action="deleteBefore"   title="Delete everything before (and including) the first X on each line">Before X</button>
+    <button class="btn" data-action="deleteInBetween" title="Delete text between X and Y on each line">X … Y</button>
+    <button class="btn" data-action="deleteAfter"    title="Delete everything after (and including) the last X on each line">After X</button>
   </div>
   <div class="btn-group">
     <span class="group-label">Order</span>
-    <button class="btn" data-action="sortLines"       title="Sort lines A to Z  (Ctrl-click: sort Z to A)">Sort</button>
-    <button class="btn" data-action="reverseLines"    title="Reverse line order">Reverse</button>
+    <button class="btn" data-action="sortLines"      title="Sort lines A→Z  (⌘-click: sort Z→A)">Sort</button>
+    <button class="btn" data-action="reverseLines"   title="Reverse line order">Reverse</button>
   </div>
   <div class="btn-group">
     <span class="group-label">Case</span>
-    <button class="btn" data-action="uppercase"       title="Convert all text to UPPER CASE">Uppercase</button>
-    <button class="btn" data-action="lowercase"       title="Convert all text to lower case">Lowercase</button>
+    <button class="btn" data-action="uppercase"      title="Convert all text to UPPER CASE">Uppercase</button>
+    <button class="btn" data-action="lowercase"      title="Convert all text to lower case">Lowercase</button>
   </div>
   <div class="btn-group">
     <span class="group-label">Clean</span>
-    <button class="btn" data-action="uniqueLines"     title="Remove duplicate lines (keeps first occurrence)">Unique</button>
-    <button class="btn" data-action="removeBlanks"    title="Remove all empty lines">Remove Blanks</button>
-    <button class="btn" data-action="sortList"        title="Deduplicate, remove blanks, then interleave lines">List Sorter</button>
+    <button class="btn" data-action="uniqueLines"    title="Remove duplicate lines (keeps first occurrence)">Unique</button>
+    <button class="btn" data-action="removeBlanks"   title="Remove all empty lines">Remove Blanks</button>
+    <button class="btn" data-action="sortList"       title="Deduplicate, remove blanks, then interleave lines">List Sorter</button>
   </div>
   <div class="btn-group">
     <span class="group-label">Encode</span>
-    <button class="btn" data-action="encodeURL"       title="URL-encode the entire text (encodeURIComponent)">Encode URL</button>
-    <button class="btn" data-action="decodeURL"       title="URL-decode the entire text (decodeURIComponent)">Decode URL</button>
+    <button class="btn" data-action="encodeURL"      title="URL-encode the entire text (encodeURIComponent)">Encode URL</button>
+    <button class="btn" data-action="decodeURL"      title="URL-decode the entire text (decodeURIComponent)">Decode URL</button>
   </div>
   <div class="btn-group">
     <span class="group-label">Nav</span>
-    <button class="btn" data-action="gotoLine"        title="Jump to line number specified in X field">Go to Line</button>
+    <button class="btn" data-action="gotoLine"       title="Jump to line number specified in X field">Go to Line</button>
   </div>
 </div>
 
@@ -194,28 +174,30 @@
   </div>
 </div>
 
-<textarea id="D" wrap="off" spellcheck="false" placeholder="Paste or type your text here..."></textarea>
+<textarea id="D" wrap="off" spellcheck="false" placeholder="Paste or type your text here…"></textarea>
 
 <div id="footer">
   <span id="status">Ready</span>
-  <span>Text Manipulation Tool &mdash; Windows Edition &nbsp;|&nbsp; Original by <strong>Rashid Saleem</strong></span>
+  <span>Text Manipulation Tool — Mac Edition &nbsp;|&nbsp; Original by <strong>Rashid Saleem</strong></span>
 </div>
 
 <script>
 'use strict';
 
-var D      = document.getElementById('D');
-var Xin    = document.getElementById('X');
-var Yin    = document.getElementById('Y');
+var D = document.getElementById('D');
+var Xin = document.getElementById('X');
+var Yin = document.getElementById('Y');
 var status = document.getElementById('status');
 
 function X() { return Xin.value; }
 function Y() { return Yin.value; }
 
+// Split on any line ending; return array of lines
 function getLines() {
   return D.value.split(/\r\n|\r|\n/);
 }
 
+// Join lines back with Unix line endings
 function setLines(lines) {
   D.value = lines.join('\n');
   updateStatus();
@@ -248,6 +230,7 @@ function replace(e) {
   if (!isCmd) {
     setVal(getVal().split(X()).join(Y()));
   } else {
+    // Evaluate Y as a JS expression for dynamic replacement
     var parts = getVal().split(X());
     for (var i = 1; i < parts.length; i++) {
       /* jshint evil:true */
@@ -334,7 +317,7 @@ function decodeURL() {
   try {
     setVal(decodeURIComponent(getVal()));
   } catch (e) {
-    setVal(getVal());
+    setVal(getVal()); // leave unchanged if malformed
   }
 }
 
@@ -345,7 +328,7 @@ function gotoLine() {
   var lines = getLines();
   var n = parseInt(X(), 10);
   if (isNaN(n) || n < 1 || n > lines.length) {
-    alert('Line ' + n + ' is out of range (1-' + lines.length + ')');
+    alert('Line ' + n + ' is out of range (1–' + lines.length + ')');
     return;
   }
   var pos = 0;
@@ -356,42 +339,34 @@ function gotoLine() {
 
 // ── Action dispatch ───────────────────────────────────────────────────────────
 
-// IE11 does not support Element.closest() — walk up the DOM manually
-function getActionTarget(el) {
-  while (el && el !== document) {
-    if (el.getAttribute && el.getAttribute('data-action')) return el;
-    el = el.parentNode;
-  }
-  return null;
-}
-
 var actions = {
-  insert:          function(e) { insert(); },
-  replace:         function(e) { replace(e); },
-  deleteBefore:    function(e) { deleteBefore(); },
-  deleteInBetween: function(e) { deleteInBetween(); },
-  deleteAfter:     function(e) { deleteAfter(); },
-  sortLines:       function(e) { sortLines(e); },
-  reverseLines:    function(e) { reverseLines(); },
-  uppercase:       function(e) { uppercase(); },
-  lowercase:       function(e) { lowercase(); },
-  uniqueLines:     function(e) { uniqueLines(); },
-  removeBlanks:    function(e) { removeBlanks(); },
-  sortList:        function(e) { sortList(); },
-  encodeURL:       function(e) { encodeURL(); },
-  decodeURL:       function(e) { decodeURL(); },
-  gotoLine:        function(e) { gotoLine(); },
+  insert:         function(e) { insert(); },
+  replace:        function(e) { replace(e); },
+  deleteBefore:   function(e) { deleteBefore(); },
+  deleteInBetween:function(e) { deleteInBetween(); },
+  deleteAfter:    function(e) { deleteAfter(); },
+  sortLines:      function(e) { sortLines(e); },
+  reverseLines:   function(e) { reverseLines(); },
+  uppercase:      function(e) { uppercase(); },
+  lowercase:      function(e) { lowercase(); },
+  uniqueLines:    function(e) { uniqueLines(); },
+  removeBlanks:   function(e) { removeBlanks(); },
+  sortList:       function(e) { sortList(); },
+  encodeURL:      function(e) { encodeURL(); },
+  decodeURL:      function(e) { decodeURL(); },
+  gotoLine:       function(e) { gotoLine(); },
 };
 
 document.getElementById('toolbar').addEventListener('click', function(e) {
-  var btn = getActionTarget(e.target);
+  var btn = e.target.closest('[data-action]');
   if (!btn) return;
-  var fn = actions[btn.getAttribute('data-action')];
+  var fn = actions[btn.dataset.action];
   if (fn) fn(e);
 });
 
 // ── Textarea helpers ──────────────────────────────────────────────────────────
 
+// Tab key inserts a real tab character instead of moving focus
 D.addEventListener('keydown', function(e) {
   if (e.key === 'Tab') {
     e.preventDefault();
@@ -413,7 +388,7 @@ function resize() {
   var usedHeight = toolbar.offsetHeight +
                    inputs.offsetHeight  +
                    footer.offsetHeight  +
-                   6 * 5;
+                   6 * 5; // gaps + padding
   D.style.height = Math.max(100, window.innerHeight - usedHeight) + 'px';
 }
 
