@@ -29,18 +29,32 @@ All three files are single standalone HTML files — no dependencies, no build s
 |-------|--------|-------------|
 | **Edit** | Insert | Prepend **X** and append **Y** to every non-empty line |
 | | Replace | Replace every **X** with **Y** across the full text. Ctrl/⌘-click evaluates **Y** as a live JS expression |
+| | Number Lines | Prefix each line with its line number (`1. 2. 3. …`) |
+| | Join Lines | Collapse all lines into one string joined by **X** |
 | **Delete** | Before X | On each line, remove everything up to and including the first **X** |
 | | X … Y | On each line, remove text between **X** and **Y** |
 | | After X | On each line, remove everything from the last **X** onwards |
 | **Order** | Sort | Sort lines A → Z. Ctrl/⌘-click sorts Z → A |
 | | Reverse | Reverse the order of all lines |
+| | Shuffle | Randomly shuffle line order (Fisher-Yates) |
+| | Flip Lines | Reverse the characters within each line (`hello` → `olleh`) |
 | **Case** | Uppercase | Convert all text to UPPER CASE |
 | | Lowercase | Convert all text to lower case |
+| | Title Case | Capitalize the first letter of every word |
+| | Sentence Case | Capitalize the first letter of each sentence |
 | **Clean** | Unique | Remove duplicate lines, keeping the first occurrence |
 | | Remove Blanks | Delete all empty lines |
+| | Trim | Strip leading and trailing whitespace from each line |
+| | Extra Spaces | Collapse multiple consecutive spaces into one |
+| | Strip HTML | Remove all `<…>` tags, leaving plain text |
 | | List Sorter | Deduplicate + remove blanks, then interleave lines |
 | **Encode** | Encode URL | URL-encode the entire text (`encodeURIComponent`) |
 | | Decode URL | URL-decode the entire text (`decodeURIComponent`) |
+| | Base64 Enc | Base64-encode the entire text (`btoa`) |
+| | Base64 Dec | Base64-decode the entire text (`atob`) |
+| | HTML Enc | Encode HTML special characters (`&` → `&amp;`, `<` → `&lt;`, etc.) |
+| | HTML Dec | Decode HTML entities back to plain characters |
+| | ROT13 | Apply the ROT13 cipher — rotate each letter by 13 positions |
 | **Nav** | Go to Line | Move the cursor to the line number in the **X** field |
 
 ---
