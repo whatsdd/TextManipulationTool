@@ -1,7 +1,7 @@
 # Text Manipulation Tool
 
-> A lightweight, zero-dependency text utility that runs entirely in your browser or as a native Windows desktop app.
-> No installation. No internet. Just open and use.
+> A powerful, zero-dependency text utility with 29 operations across 7 groups — runs entirely in your browser or as a native Windows desktop app.
+> No installation. No internet. No server. Just open and use.
 
 Originally built by **[Rashid Saleem](https://github.com/whatsdd)** for internal data mining and text assessment work, and open-sourced so everyone can use and contribute.
 
@@ -11,19 +11,35 @@ Originally built by **[Rashid Saleem](https://github.com/whatsdd)** for internal
 
 ---
 
+## Table of Contents
+
+- [Download & Open](#download--open)
+- [Features](#features)
+- [How to Use](#how-to-use)
+- [The X and Y Fields](#the-x-and-y-fields)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
+- [Tutorial](#tutorial)
+- [Platform Comparison](#platform-comparison)
+- [What Changed in the Overhaul](#what-changed-in-the-overhaul)
+- [Credits](#credits)
+
+---
+
 ## Download & Open
 
 | File | Platform | How to open |
 |------|----------|-------------|
-| [`CODE.HTA`](CODE.HTA) | **Windows — Desktop App** | Double-click. Opens as a native borderless window via the Windows HTA runtime. No browser needed. |
-| [`CODE.html`](CODE.html) | **Windows — Browser** | Open in Microsoft Edge, Chrome, or Firefox on Windows. |
-| [`TextManipulationTool_Mac.html`](TextManipulationTool_Mac.html) | **macOS / Linux / Any modern browser** | Open in Safari, Chrome, Firefox, or any modern browser. |
+| 🖥️ [`CODE.HTA`](CODE.HTA) | **Windows — Desktop App** | Double-click. Opens as a native borderless window via the Windows HTA runtime. No browser needed. |
+| 🌐 [`CODE.html`](CODE.html) | **Windows — Browser** | Open in Microsoft Edge, Chrome, or Firefox on Windows. |
+| 🍎 [`TextManipulationTool_Mac.html`](TextManipulationTool_Mac.html) | **macOS / Linux / Any modern browser** | Open in Safari, Chrome, Firefox, or any modern browser. |
 
-All three files are single standalone HTML files — no dependencies, no build step, no server.
+All three files are single standalone HTML files — no dependencies, no build step, no server, works fully offline.
 
 ---
 
 ## Features
+
+29 operations grouped into 7 categories. Every operation works instantly on the text in the editor — no clipboard required.
 
 | Group | Button | What it does |
 |-------|--------|-------------|
@@ -59,19 +75,6 @@ All three files are single standalone HTML files — no dependencies, no build s
 
 ---
 
-## The X and Y Fields
-
-Almost every operation uses the **X** and **Y** input fields as parameters:
-
-- **X** — the search string, delimiter, or (for Go to Line) the target line number
-- **Y** — the replacement, the appended string, or the right delimiter
-
-**Insert example:** X = `[`, Y = `]` → wraps every line so `hello` becomes `[hello]`
-
-**Replace with Ctrl/⌘:** Set Y to a JavaScript expression. The variable `i` is the match index. For example, Y = `` `[${i}] ` `` numbers each match sequentially.
-
----
-
 ## How to Use
 
 ### Windows — Desktop App (`CODE.HTA`)
@@ -97,6 +100,142 @@ Almost every operation uses the **X** and **Y** input fields as parameters:
 
 ---
 
+## The X and Y Fields
+
+Almost every operation uses the **X** and **Y** input fields as parameters:
+
+- **X** — the search string, delimiter, or (for Go to Line) the target line number
+- **Y** — the replacement, the appended string, or the right delimiter
+
+**Insert example:** X = `[`, Y = `]` → wraps every line so `hello` becomes `[hello]`
+
+**Replace with Ctrl/⌘:** Set Y to a JavaScript expression. The variable `i` is the match index (zero-based). For example, Y = `` `[${i}] ` `` numbers each match sequentially.
+
+---
+
+## Keyboard Shortcuts
+
+| Key | Where | What it does |
+|-----|-------|-------------|
+| `Tab` | Textarea | Inserts a real tab character (does not lose focus) |
+| `Ctrl`+click / `⌘`+click | **Sort** button | Sort Z → A (reverse sort) |
+| `Ctrl`+click / `⌘`+click | **Replace** button | Evaluate Y as a JS expression (dynamic replacement) |
+
+---
+
+## Tutorial
+
+### The Basics
+
+1. **Open** the tool file for your platform (see [Download & Open](#download--open))
+2. **Paste** your text into the large editing area
+3. **Set X and Y** — the two input fields at the top are the parameters used by most operations
+4. **Click a button** — the result appears instantly in the editor
+
+The live status bar at the bottom shows **lines**, **characters**, and **words** as you type.
+
+---
+
+### Example 1 — Clean up a messy list
+
+You have a list copied from a website with extra spaces, blank lines, and duplicates:
+
+```
+  Apple  
+  Banana
+
+  Apple
+    Cherry  
+```
+
+Steps:
+1. Paste the text into the editor
+2. Click **Trim** → removes leading/trailing spaces from every line
+3. Click **Remove Blanks** → deletes the empty lines
+4. Click **Unique** → removes the duplicate "Apple"
+
+Result: `Apple`, `Banana`, `Cherry` — one per line, clean.
+
+---
+
+### Example 2 — Add a prefix and suffix to every line
+
+You have a list of names and want to wrap each one in SQL single quotes: `'Alice'`, `'Bob'`, `'Carol'`
+
+Steps:
+1. Paste: `Alice`, `Bob`, `Carol` (one per line)
+2. Set **X** = `'` and **Y** = `'`
+3. Click **Insert**
+
+Result: each line is wrapped with the X prefix and Y suffix.
+
+---
+
+### Example 3 — Replace text across a block
+
+You copied a config file and need to change every `localhost` to `production.server.com`:
+
+1. Paste the config text
+2. Set **X** = `localhost`, **Y** = `production.server.com`
+3. Click **Replace**
+
+---
+
+### Example 4 — Number a list
+
+You have 10 lines and want them numbered `1.`, `2.`, `3. …`:
+
+1. Paste the lines
+2. Click **Number Lines**
+
+To remove the numbers later: set **X** = `. ` and click **Delete → Before X**.
+
+---
+
+### Example 5 — Extract data between two delimiters
+
+You have lines like `name: "Alice" age: 25` and want just the names:
+
+1. Set **X** = `"` and **Y** = `"`
+2. Click **Delete → Before X** to remove everything up to and including the first quote
+3. Click **Delete → After X** to remove everything from the last quote onwards
+
+---
+
+### Example 6 — Convert a comma-separated string to lines
+
+Input: `apple, banana, cherry, date`
+
+1. Set **X** = `, ` and **Y** = (leave empty, or press Enter in the field)
+2. Click **Replace** — each comma+space becomes a newline, splitting onto separate lines
+
+---
+
+### Example 7 — Encode text for use in a URL
+
+1. Paste your text (e.g., `hello world & more`)
+2. Click **Encode URL** → `hello%20world%20%26%20more`
+3. Click **Decode URL** to restore the original
+
+---
+
+### Example 8 — Sort and deduplicate a word list
+
+1. Paste your words (one per line)
+2. Click **Unique** → remove duplicates
+3. Click **Sort** → sort A → Z
+4. Hold Ctrl/⌘ and click **Sort** → sort Z → A
+
+---
+
+### Dynamic Replace (Advanced)
+
+Hold `Ctrl` (Windows) or `⌘` (Mac) and click **Replace** — the **Y** field is evaluated as a JavaScript expression. The variable `i` is the zero-based match index.
+
+**Example:** Set X = `item`, Y = `` `item_${i+1}` `` then Ctrl/⌘-click Replace to number each match: `item_1`, `item_2`, `item_3` …
+
+---
+
 ## Platform Comparison
 
 | | `CODE.HTA` | `CODE.html` | `TextManipulationTool_Mac.html` |
@@ -108,6 +247,8 @@ Almost every operation uses the **X** and **Y** input fields as parameters:
 | **UI font** | Segoe UI | Segoe UI | -apple-system, Helvetica Neue |
 | **`gap` CSS** | Via margins (IE11) | Standard `gap` | Standard `gap` |
 | **`closest()` API** | DOM-walk polyfill (IE11) | Native | Native |
+| **`:focus-within`** | Not supported (omitted) | Supported | Supported |
+| **Webkit scrollbar** | Not styled | Styled | Styled |
 | **Line endings** | Reads CRLF/CR/LF, writes LF | Reads CRLF/CR/LF, writes LF | Reads CRLF/CR/LF, writes LF |
 
 ---
@@ -128,11 +269,12 @@ The original Windows files used several IE-only and deprecated APIs. All three f
 | `document.write()` button generation | Static HTML with `data-action` attributes |
 | Hard-coded `HEIGHT:600` | Flexbox layout, fills viewport dynamically |
 | `fixedsys` / `microsoft sans serif` | System font stacks per platform |
-| No status bar | Live line count + character count |
+| No status bar | Live line count + character count + word count |
 | No URL encode/decode | Encode URL + Decode URL buttons |
 | No Go to Line button | Go to Line in toolbar |
 | No button tooltips | `title` attribute on every button |
 | No button grouping | Grouped toolbar (Edit, Delete, Order, Case, Clean, Encode, Nav) |
+| 15 operations | 29 operations |
 
 ---
 
