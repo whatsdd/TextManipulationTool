@@ -1,6 +1,6 @@
 # Text Manipulation Tool
 
-> A powerful, zero-dependency text utility with 29 operations across 7 groups — runs entirely in your browser or as a native Windows desktop app.
+> A powerful, zero-dependency text utility with 29 operations across 7 groups — runs entirely in your browser on any platform.
 > No installation. No internet. No server. Just open and use.
 
 Originally built by **[Rashid Saleem](https://github.com/whatsdd)** for internal data mining and text assessment work, and open-sourced so everyone can use and contribute.
@@ -19,7 +19,6 @@ Originally built by **[Rashid Saleem](https://github.com/whatsdd)** for internal
 - [The X and Y Fields](#the-x-and-y-fields)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Tutorial](#tutorial)
-- [Platform Comparison](#platform-comparison)
 - [What Changed in the Overhaul](#what-changed-in-the-overhaul)
 - [Credits](#credits)
 
@@ -27,13 +26,11 @@ Originally built by **[Rashid Saleem](https://github.com/whatsdd)** for internal
 
 ## Download & Open
 
-| File | Platform | How to open |
-|------|----------|-------------|
-| 🖥️ [`CODE.HTA`](CODE.HTA) | **Windows — Desktop App** | Double-click. Opens as a native borderless window via the Windows HTA runtime. No browser needed. |
-| 🌐 [`CODE.html`](CODE.html) | **Windows — Browser** | Open in Microsoft Edge, Chrome, or Firefox on Windows. |
-| 🍎 [`TextManipulationTool_Mac.html`](TextManipulationTool_Mac.html) | **macOS / Linux / Any modern browser** | Open in Safari, Chrome, Firefox, or any modern browser. |
+| File | How to open |
+|------|-------------|
+| 🌐 [`TextManipulationTool.html`](TextManipulationTool.html) | Open in **any modern browser** — Edge, Chrome, Firefox, Safari — on Windows, macOS, or Linux. |
 
-All three files are single standalone HTML files — no dependencies, no build step, no server, works fully offline.
+Single standalone HTML file — no dependencies, no build step, no server, works fully offline.
 
 ---
 
@@ -77,26 +74,12 @@ All three files are single standalone HTML files — no dependencies, no build s
 
 ## How to Use
 
-### Windows — Desktop App (`CODE.HTA`)
-
 1. Clone or download the repository
-2. Double-click `CODE.HTA`
-3. Windows opens it as a native HTA window (no browser chrome, no address bar)
-4. Paste your text, set X and Y, click any button
+2. Open `TextManipulationTool.html` in any modern browser (Edge, Chrome, Firefox, Safari)
+3. Paste your text into the large editing area
+4. Set **X** and **Y** as needed, then click a button
 
-> Requires the Windows HTA runtime, which ships with all versions of Windows (XP through 11). Will not open on macOS or Linux.
-
-### Windows — Browser (`CODE.html`)
-
-1. Clone or download the repository
-2. Open `CODE.html` in **Edge**, **Chrome**, or **Firefox**
-3. Same usage as above
-
-### macOS / Linux / Any modern browser
-
-1. Clone or download the repository
-2. Open `TextManipulationTool_Mac.html` in your browser
-3. Same usage as above
+Works on Windows, macOS, and Linux. No install, no internet, no dependencies.
 
 ---
 
@@ -127,7 +110,7 @@ Almost every operation uses the **X** and **Y** input fields as parameters:
 
 ### The Basics
 
-1. **Open** the tool file for your platform (see [Download & Open](#download--open))
+1. **Open** `TextManipulationTool.html` in your browser
 2. **Paste** your text into the large editing area
 3. **Set X and Y** — the two input fields at the top are the parameters used by most operations
 4. **Click a button** — the result appears instantly in the editor
@@ -206,7 +189,7 @@ You have lines like `name: "Alice" age: 25` and want just the names:
 
 Input: `apple, banana, cherry, date`
 
-1. Set **X** = `, ` and **Y** = (leave empty, or press Enter in the field)
+1. Set **X** = `, ` and **Y** = (leave empty)
 2. Click **Replace** — each comma+space becomes a newline, splitting onto separate lines
 
 ---
@@ -230,35 +213,19 @@ Input: `apple, banana, cherry, date`
 
 ### Dynamic Replace (Advanced)
 
-Hold `Ctrl` (Windows) or `⌘` (Mac) and click **Replace** — the **Y** field is evaluated as a JavaScript expression. The variable `i` is the zero-based match index.
+Hold `Ctrl` (Windows/Linux) or `⌘` (Mac) and click **Replace** — the **Y** field is evaluated as a JavaScript expression. The variable `i` is the zero-based match index.
 
 **Example:** Set X = `item`, Y = `` `item_${i+1}` `` then Ctrl/⌘-click Replace to number each match: `item_1`, `item_2`, `item_3` …
 
 ---
 
-## Platform Comparison
-
-| | `CODE.HTA` | `CODE.html` | `TextManipulationTool_Mac.html` |
-|---|---|---|---|
-| **Platform** | Windows desktop (HTA) | Windows browsers | macOS / Linux / any browser |
-| **Runtime** | IE11 / Trident engine | Edge, Chrome, Firefox | Safari, Chrome, Firefox |
-| **Modifier key** | Ctrl | Ctrl | ⌘ Cmd or Ctrl |
-| **Monospace font** | Consolas, Courier New | Consolas, Courier New | SF Mono, Menlo, Monaco |
-| **UI font** | Segoe UI | Segoe UI | -apple-system, Helvetica Neue |
-| **`gap` CSS** | Via margins (IE11) | Standard `gap` | Standard `gap` |
-| **`closest()` API** | DOM-walk polyfill (IE11) | Native | Native |
-| **`:focus-within`** | Not supported (omitted) | Supported | Supported |
-| **Webkit scrollbar** | Not styled | Styled | Styled |
-| **Line endings** | Reads CRLF/CR/LF, writes LF | Reads CRLF/CR/LF, writes LF | Reads CRLF/CR/LF, writes LF |
-
----
-
 ## What Changed in the Overhaul
 
-The original Windows files used several IE-only and deprecated APIs. All three files have been modernised to share the same feature set and code quality:
+The original Windows-only files used several IE-only and deprecated APIs. The tool has been modernised and consolidated into a single cross-platform file:
 
-| Old (original) | New (overhauled) |
-|----------------|-----------------|
+| Old (original) | New |
+|----------------|-----|
+| Three separate files (HTA, Windows HTML, Mac HTML) | **One universal file** for all platforms |
 | `document.selection.createRange()` | `setSelectionRange()` — standard |
 | `event.srcElement` | `e.target` — standard |
 | Global `event` object in functions | Event parameter `e` passed explicitly |
@@ -268,7 +235,7 @@ The original Windows files used several IE-only and deprecated APIs. All three f
 | Three buttons all labeled "delete" | **Before X**, **X … Y**, **After X** |
 | `document.write()` button generation | Static HTML with `data-action` attributes |
 | Hard-coded `HEIGHT:600` | Flexbox layout, fills viewport dynamically |
-| `fixedsys` / `microsoft sans serif` | System font stacks per platform |
+| `fixedsys` / `microsoft sans serif` | Cross-platform system font stack |
 | No status bar | Live line count + character count + word count |
 | No URL encode/decode | Encode URL + Decode URL buttons |
 | No Go to Line button | Go to Line in toolbar |
