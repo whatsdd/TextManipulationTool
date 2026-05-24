@@ -5,6 +5,8 @@
 
 Originally built by **[Rashid Saleem](https://github.com/whatsdd)** for internal data mining and text assessment work, and open-sourced so everyone can use and contribute.
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20Tool-0071e3?style=flat-square)](https://whatsdd.github.io/TextManipulationTool/)
+
 ---
 
 ![Tool Preview](https://raw.githubusercontent.com/whatsdd/TextManipulationTool/master/tool.PNG)
@@ -26,11 +28,12 @@ Originally built by **[Rashid Saleem](https://github.com/whatsdd)** for internal
 
 ## Download & Open
 
-| File | How to open |
-|------|-------------|
-| 🌐 [`TextManipulationTool.html`](TextManipulationTool.html) | Open in **any modern browser** — Edge, Chrome, Firefox, Safari — on Windows, macOS, or Linux. |
+| | How |
+|---|---|
+| 🌐 **Use online (no download)** | [whatsdd.github.io/TextManipulationTool](https://whatsdd.github.io/TextManipulationTool/) — open in any browser, nothing to install |
+| 💾 **Download for offline use** | [`TextManipulationTool.html`](TextManipulationTool.html) — save the file, open it locally, works with no internet |
 
-Single standalone HTML file — no dependencies, no build step, no server, works fully offline.
+Works on Windows, macOS, and Linux. No dependencies, no build step, no server.
 
 ---
 
@@ -74,12 +77,14 @@ Single standalone HTML file — no dependencies, no build step, no server, works
 
 ## How to Use
 
-1. Clone or download the repository
-2. Open `TextManipulationTool.html` in any modern browser (Edge, Chrome, Firefox, Safari)
-3. Paste your text into the large editing area
-4. Set **X** and **Y** as needed, then click a button
+**Option A — Online:** Visit [whatsdd.github.io/TextManipulationTool](https://whatsdd.github.io/TextManipulationTool/) in any browser. No install, no download.
 
-Works on Windows, macOS, and Linux. No install, no internet, no dependencies.
+**Option B — Offline:** Download `TextManipulationTool.html`, save it anywhere, and open it in your browser. Works with no internet connection.
+
+Either way:
+1. Paste your text into the large editing area
+2. Set **X** and **Y** as needed
+3. Click a button — result appears instantly
 
 ---
 
