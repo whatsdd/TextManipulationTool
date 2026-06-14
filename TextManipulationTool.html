@@ -1,583 +1,1405 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Text Manipulation Tool</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f0f5;--surface:#fff;--surface2:#f5f5f7;--border:#d1d1d6;
+  --text:#1d1d1f;--text2:#6e6e73;--text3:#aeaeb2;
+  --accent:#0071e3;--danger:#c0392b;--danger-bg:#fef6f5;--danger-bd:#f0cece;
+  --sh1:0 1px 3px rgba(0,0,0,.07);--sh2:0 2px 8px rgba(0,0,0,.10);
+  --fu:-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --fm:'SF Mono','Menlo','Monaco','Consolas','Courier New',monospace;
+  --r:5px;--r2:4px
+}
+[data-theme=dark]{
+  --bg:#1c1c1e;--surface:#2c2c2e;--surface2:#3a3a3c;--border:#48484a;
+  --text:#f2f2f7;--text2:#aeaeb2;--text3:#636366;
+  --accent:#0a84ff;--danger:#ff453a;--danger-bg:#2c1010;--danger-bd:#5e2020
+}
+html,body{height:100%;font-family:var(--fu);font-size:13px;color:var(--text);background:var(--bg)}
+body{
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  grid-template-columns:172px 1fr;
+  grid-template-areas:"tb tb" "sb main" "ft ft";
+  overflow:hidden;height:100vh
+}
 
-  body {
-    background: linear-gradient(160deg, #f2f2f7 0%, #e4e4eb 100%);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 13px;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    padding: 6px;
-    gap: 5px;
-    color: #1d1d1f;
-  }
+/* ── Top bar ── */
+#topbar{
+  grid-area:tb;display:flex;align-items:center;justify-content:space-between;
+  padding:5px 8px;background:var(--surface);border-bottom:1px solid var(--border);
+  gap:6px;box-shadow:var(--sh1);min-width:0
+}
+#tb-left{display:flex;align-items:center;gap:7px;flex-shrink:0}
+#hdr-title{font-size:13px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+#edition-badge{font-size:10px;background:var(--accent);color:#fff;padding:2px 7px;border-radius:10px;font-weight:500}
+#tb-right{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+.tb-btn{
+  font-family:var(--fu);font-size:12px;padding:3px 9px;
+  border:1px solid var(--border);border-radius:var(--r2);
+  background:var(--surface2);color:var(--text);cursor:pointer;white-space:nowrap;
+  transition:background .1s,border-color .1s
+}
+.tb-btn:hover{background:var(--border)}
+.tb-btn:active{opacity:.75}
+.tb-btn:disabled{opacity:.38;cursor:default;pointer-events:none}
+.tb-sep{width:1px;height:16px;background:var(--border);margin:0 2px;flex-shrink:0}
 
-  #header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 2px 2px 0;
-  }
-  #header-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1d1d1f;
-    letter-spacing: -0.01em;
-  }
-  #edition-badge {
-    font-size: 10px;
-    background: #0071e3;
-    color: #ffffff;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-  }
+/* ── Sidebar ── */
+#sidebar{
+  grid-area:sb;background:var(--surface2);border-right:1px solid var(--border);
+  overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column
+}
+#sidebar::-webkit-scrollbar{width:4px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+#sb-search-wrap{
+  padding:6px;position:sticky;top:0;background:var(--surface2);
+  z-index:1;border-bottom:1px solid var(--border)
+}
+#sb-search{
+  width:100%;font-family:var(--fu);font-size:12px;padding:5px 8px;
+  border:1px solid var(--border);border-radius:var(--r2);
+  background:var(--surface);color:var(--text);outline:none
+}
+#sb-search:focus{border-color:var(--accent)}
+.sb-section{border-bottom:1px solid var(--border)}
+.sb-head{
+  width:100%;text-align:left;padding:6px 8px;font-family:var(--fu);
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--text2);background:none;border:none;cursor:pointer;
+  display:flex;align-items:center;gap:5px
+}
+.sb-head:hover{background:rgba(0,0,0,.04)}
+[data-theme=dark] .sb-head:hover{background:rgba(255,255,255,.05)}
+.sb-head.danger{color:var(--danger)}
+.sb-arrow{font-size:9px;line-height:1}
+.sb-body{padding:3px 5px 6px;display:flex;flex-direction:column;gap:2px}
+.sb-btn{
+  width:100%;text-align:left;padding:5px 9px;font-family:var(--fu);font-size:12px;
+  border:1px solid transparent;border-radius:var(--r2);background:none;
+  color:var(--text);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:background .08s,border-color .08s
+}
+.sb-btn:hover{background:var(--surface);border-color:var(--border)}
+.sb-btn:active{opacity:.7}
+.sb-btn.danger{color:var(--danger)}
+.sb-btn.danger:hover{background:var(--danger-bg);border-color:var(--danger-bd)}
+.sb-btn.flash{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
 
-  #toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    padding: 5px 6px;
-    background: linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%);
-    border: 1px solid rgba(0,0,0,0.06);
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  }
+/* ── Main ── */
+#main{grid-area:main;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+#D{
+  flex:1;width:100%;min-height:0;
+  font-family:var(--fm);font-size:13px;line-height:1.55;
+  padding:10px 12px;border:none;border-bottom:1px solid var(--border);
+  background:var(--surface);color:var(--text);resize:none;outline:none;
+  tab-size:4;white-space:pre
+}
+#D::placeholder{color:var(--text3);font-style:italic}
+#D::-webkit-scrollbar{width:8px;height:8px}
+#D::-webkit-scrollbar-track{background:var(--surface2)}
+#D::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+#D::-webkit-scrollbar-thumb:hover{background:var(--text3)}
 
-  .btn {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 12px;
-    padding: 4px 10px;
-    border: 1px solid #c7c7cc;
-    background: #ffffff;
-    color: #1d1d1f;
-    border-radius: 5px;
-    cursor: pointer;
-    white-space: nowrap;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.7);
-    transition: background 0.12s, border-color 0.12s, box-shadow 0.12s, transform 0.08s;
-  }
-  .btn:hover {
-    background: #e8e8ed;
-    border-color: #aeaeb2;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
-    transform: translateY(-1px);
-  }
-  .btn:active {
-    background: #d1d1d6;
-    border-color: #8e8e93;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-    transform: translateY(0);
-  }
+/* ── Find panel ── */
+#find-panel{
+  display:flex;align-items:center;gap:4px;padding:5px 8px;
+  background:var(--surface2);border-bottom:1px solid var(--border);flex-wrap:wrap
+}
+#find-panel[hidden]{display:none}
+#fp-find,#fp-replace{
+  font-family:var(--fm);font-size:12px;padding:3px 7px;
+  border:1px solid var(--border);border-radius:var(--r2);
+  background:var(--surface);color:var(--text);outline:none;width:150px
+}
+#fp-find:focus,#fp-replace:focus{border-color:var(--accent)}
+.fp-label{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none}
+.fp-btn{
+  font-family:var(--fu);font-size:12px;padding:3px 8px;
+  border:1px solid var(--border);border-radius:var(--r2);
+  background:var(--surface);color:var(--text);cursor:pointer
+}
+.fp-btn:hover{background:var(--border)}
+#fp-count{font-size:11px;color:var(--text2);min-width:55px}
 
-  .btn-group {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    padding: 0 4px;
-    border-left: 1px solid #d1d1d6;
-  }
-  .btn-group:first-child { border-left: none; padding-left: 0; }
+/* ── Footer ── */
+#footer{
+  grid-area:ft;display:flex;align-items:center;gap:8px;
+  padding:4px 8px;background:var(--surface2);
+  border-top:1px solid var(--border);font-size:11px;color:var(--text2)
+}
+#status{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#xy-fields{display:flex;gap:5px;flex-shrink:0}
+.xy-wrap{
+  display:flex;align-items:center;gap:4px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r2);
+  padding:3px 7px;width:140px
+}
+.xy-wrap:focus-within{border-color:var(--accent)}
+.xy-wrap label{color:var(--text3);white-space:nowrap;font-size:11px;user-select:none}
+.t{flex:1;font-family:var(--fm);font-size:12px;border:none;background:transparent;color:var(--text);outline:none;min-width:0}
+.credit{flex-shrink:0;color:var(--text3)}
+.credit a{color:var(--text3);text-decoration:none}
+.credit a:hover{color:var(--accent)}
 
-  .btn-group[data-group="delete"] .btn {
-    color: #c0392b;
-    border-color: #f0cece;
-  }
-  .btn-group[data-group="delete"] .btn:hover {
-    background: #fef6f5;
-    border-color: #e8aaaa;
-    box-shadow: 0 2px 6px rgba(192,57,43,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
-  }
-
-  .group-label {
-    font-size: 10px;
-    color: #6e6e73;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 1px 6px;
-    background: #e5e5ea;
-    border-radius: 4px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  #inputs {
-    display: flex;
-    gap: 5px;
-  }
-
-  .input-wrap {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    gap: 5px;
-    background: #f5f5f7;
-    border: 1px solid #d1d1d6;
-    border-radius: 6px;
-    padding: 4px 8px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
-    transition: border-color 0.12s, box-shadow 0.12s;
-  }
-  .input-wrap:focus-within {
-    border-color: #0071e3;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04), 0 0 0 2px rgba(0,113,227,0.15);
-  }
-
-  .input-wrap label {
-    font-size: 11px;
-    color: #8e8e93;
-    white-space: nowrap;
-  }
-
-  .t {
-    flex: 1;
-    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
-    font-size: 12px;
-    border: none;
-    background: transparent;
-    color: #1d1d1f;
-    outline: none;
-  }
-
-  #D {
-    flex: 1;
-    width: 100%;
-    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
-    font-size: 13px;
-    border: 1px solid #d1d1d6;
-    border-radius: 6px;
-    padding: 8px;
-    resize: none;
-    background: #ffffff;
-    color: #1d1d1f;
-    outline: none;
-    line-height: 1.5;
-    tab-size: 4;
-    box-shadow: inset 0 1px 4px rgba(0,0,0,0.06);
-    transition: border-color 0.12s, box-shadow 0.12s;
-  }
-  #D:focus {
-    border-color: #0071e3;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04), 0 0 0 3px rgba(0,113,227,0.18);
-  }
-  #D::placeholder { color: #b0b0b8; font-style: italic; }
-  #D::-webkit-scrollbar { width: 8px; height: 8px; }
-  #D::-webkit-scrollbar-track { background: #f5f5f7; }
-  #D::-webkit-scrollbar-thumb { background: #c7c7cc; border-radius: 4px; }
-  #D::-webkit-scrollbar-thumb:hover { background: #aeaeb2; }
-
-  #footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 10px;
-    color: #8e8e93;
-    padding: 5px 4px 2px;
-    border-top: 1px solid #d1d1d6;
-  }
-
-  #status { font-weight: 500; color: #636366; }
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:36px;right:16px;background:#1d1d1f;color:#f5f5f7;
+  font-size:12px;padding:7px 14px;border-radius:8px;box-shadow:var(--sh2);
+  opacity:0;pointer-events:none;transition:opacity .2s;z-index:999;max-width:280px
+}
+#toast.show{opacity:1}
+[data-theme=dark] #toast{background:#e5e5ea;color:#1d1d1f}
 </style>
 </head>
 <body>
 
-<div id="header">
-  <span id="header-title">Text Manipulation Tool</span>
-  <span id="edition-badge">Universal</span>
-</div>
-
-<div id="toolbar">
-  <div class="btn-group">
-    <span class="group-label">Edit</span>
-    <button class="btn" data-action="insert"         title="Prepend X and append Y to each non-empty line">Insert</button>
-    <button class="btn" data-action="replace"        title="Replace all X with Y  (Ctrl/⌘-click: evaluate Y as expression)">Replace</button>
-    <button class="btn" data-action="addLineNumbers" title="Prefix each line with its line number (1. 2. 3. ...)">Number Lines</button>
-    <button class="btn" data-action="joinLines"      title="Collapse all lines into one string, joined by X">Join Lines</button>
+<div id="topbar">
+  <div id="tb-left">
+    <span id="hdr-title">Text Manipulation Tool</span>
+    <span id="edition-badge">Universal</span>
   </div>
-  <div class="btn-group" data-group="delete">
-    <span class="group-label">Delete</span>
-    <button class="btn" data-action="deleteBefore"   title="Delete everything before (and including) the first X on each line">Before X</button>
-    <button class="btn" data-action="deleteInBetween" title="Delete text between X and Y on each line">X … Y</button>
-    <button class="btn" data-action="deleteAfter"    title="Delete everything after (and including) the last X on each line">After X</button>
-  </div>
-  <div class="btn-group">
-    <span class="group-label">Order</span>
-    <button class="btn" data-action="sortLines"       title="Sort lines A→Z  (Ctrl/⌘-click: sort Z→A)">Sort</button>
-    <button class="btn" data-action="reverseLines"   title="Reverse line order">Reverse</button>
-    <button class="btn" data-action="shuffleLines"   title="Randomly shuffle the order of lines (Fisher-Yates)">Shuffle</button>
-    <button class="btn" data-action="reverseEachLine" title="Reverse the characters within each line (hello → olleh)">Flip Lines</button>
-  </div>
-  <div class="btn-group">
-    <span class="group-label">Case</span>
-    <button class="btn" data-action="uppercase"      title="Convert all text to UPPER CASE">Uppercase</button>
-    <button class="btn" data-action="lowercase"      title="Convert all text to lower case">Lowercase</button>
-    <button class="btn" data-action="titleCase"      title="Capitalize the first letter of every word">Title Case</button>
-    <button class="btn" data-action="sentenceCase"   title="Capitalize the first letter of each sentence">Sentence Case</button>
-  </div>
-  <div class="btn-group">
-    <span class="group-label">Clean</span>
-    <button class="btn" data-action="uniqueLines"       title="Remove duplicate lines (keeps first occurrence)">Unique</button>
-    <button class="btn" data-action="removeBlanks"      title="Remove all empty lines">Remove Blanks</button>
-    <button class="btn" data-action="trimLines"         title="Remove leading and trailing whitespace from each line">Trim</button>
-    <button class="btn" data-action="removeExtraSpaces" title="Collapse multiple consecutive spaces into one">Extra Spaces</button>
-    <button class="btn" data-action="removeHTMLTags"    title="Strip all HTML tags, leaving plain text">Strip HTML</button>
-    <button class="btn" data-action="sortList"          title="Deduplicate, remove blanks, then interleave lines">List Sorter</button>
-  </div>
-  <div class="btn-group">
-    <span class="group-label">Encode</span>
-    <button class="btn" data-action="encodeURL"      title="URL-encode the entire text (encodeURIComponent)">Encode URL</button>
-    <button class="btn" data-action="decodeURL"      title="URL-decode the entire text (decodeURIComponent)">Decode URL</button>
-    <button class="btn" data-action="base64Encode"   title="Base64-encode the entire text (btoa)">Base64 Enc</button>
-    <button class="btn" data-action="base64Decode"   title="Base64-decode the entire text (atob)">Base64 Dec</button>
-    <button class="btn" data-action="htmlEncode"     title="Encode HTML special characters (&amp; &lt; &gt; &quot; &#39;)">HTML Enc</button>
-    <button class="btn" data-action="htmlDecode"     title="Decode HTML entities back to plain characters">HTML Dec</button>
-    <button class="btn" data-action="rot13"          title="Apply ROT13 cipher — rotate each letter by 13 positions">ROT13</button>
-  </div>
-  <div class="btn-group">
-    <span class="group-label">Nav</span>
-    <button class="btn" data-action="gotoLine"       title="Jump to line number specified in X field">Go to Line</button>
+  <div id="tb-right">
+    <button class="tb-btn" id="btn-open-file" title="Open file (drag &amp; drop also works)">Open</button>
+    <button class="tb-btn" id="btn-save" title="Download as text file (Ctrl/⌘+S)">Save</button>
+    <button class="tb-btn" id="btn-copy" title="Copy all text (Ctrl/⌘+Shift+C)">Copy</button>
+    <button class="tb-btn" id="btn-clear" title="Clear editor">Clear</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btn-undo" title="Undo last operation (Ctrl/⌘+Z)" disabled>↩ Undo</button>
+    <button class="tb-btn" id="btn-redo" title="Redo (Ctrl/⌘+Shift+Z)" disabled>↪ Redo</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btn-find" title="Find &amp; Replace (Ctrl/⌘+F)">Find</button>
+    <button class="tb-btn" id="btn-wrap" title="Toggle word wrap">Wrap</button>
+    <button class="tb-btn" id="btn-dark" title="Toggle dark mode">🌙 Dark</button>
   </div>
 </div>
 
-<div id="inputs">
-  <div class="input-wrap">
-    <label for="X">X&nbsp;=</label>
-    <input id="X" class="t" value="&" spellcheck="false" autocomplete="off">
+<nav id="sidebar">
+  <div id="sb-search-wrap">
+    <input id="sb-search" type="text" placeholder="🔍 filter…" autocomplete="off" spellcheck="false">
   </div>
-  <div class="input-wrap">
-    <label for="Y">Y&nbsp;=</label>
-    <input id="Y" class="t" value="'\n'" spellcheck="false" autocomplete="off">
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Edit</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="insert" title="Prepend X and append Y to every non-empty line">Insert</button>
+      <button class="sb-btn" data-action="replace" title="Replace all X with Y (Ctrl/⌘-click: eval Y as JS expression, i = match index)">Replace</button>
+      <button class="sb-btn" data-action="addLineNumbers" title="Prefix each line with 1. 2. 3. …">Number Lines</button>
+      <button class="sb-btn" data-action="joinLines" title="Join all lines into one, separated by X">Join Lines</button>
+      <button class="sb-btn" data-action="splitByX" title="Split each line into multiple lines at every X">Split by X</button>
+      <button class="sb-btn" data-action="removeLinesWithX" title="Delete every line containing X">Remove w/ X</button>
+      <button class="sb-btn" data-action="keepLinesWithX" title="Keep only lines that contain X">Keep w/ X</button>
+      <button class="sb-btn" data-action="duplicateLines" title="Duplicate every line">Duplicate</button>
+      <button class="sb-btn" data-action="padLines" title="Left-pad each line to X chars using Y (default space)">Pad Lines</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head danger"><span class="sb-arrow">▾</span>Delete</button>
+    <div class="sb-body">
+      <button class="sb-btn danger" data-action="deleteBefore" title="Remove everything before and including the first X on each line">Before X</button>
+      <button class="sb-btn danger" data-action="deleteInBetween" title="Remove text between X and Y on each line">X … Y</button>
+      <button class="sb-btn danger" data-action="deleteAfter" title="Remove everything after and including the last X on each line">After X</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Order</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="sortLines" title="Sort A→Z (Ctrl/⌘-click: sort Z→A)">Sort</button>
+      <button class="sb-btn" data-action="reverseLines" title="Reverse line order">Reverse</button>
+      <button class="sb-btn" data-action="shuffleLines" title="Randomly shuffle lines (Fisher-Yates)">Shuffle</button>
+      <button class="sb-btn" data-action="reverseEachLine" title="Reverse characters within each line (hello → olleh)">Flip Lines</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Case</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="uppercase" title="UPPER CASE">UPPER</button>
+      <button class="sb-btn" data-action="lowercase" title="lower case">lower</button>
+      <button class="sb-btn" data-action="titleCase" title="Title Case Every Word">Title Case</button>
+      <button class="sb-btn" data-action="sentenceCase" title="Capitalize first letter of each sentence">Sentence</button>
+      <button class="sb-btn" data-action="camelCase" title="camelCase">camelCase</button>
+      <button class="sb-btn" data-action="pascalCase" title="PascalCase">PascalCase</button>
+      <button class="sb-btn" data-action="snakeCase" title="snake_case">snake_case</button>
+      <button class="sb-btn" data-action="kebabCase" title="kebab-case">kebab-case</button>
+      <button class="sb-btn" data-action="constantCase" title="CONSTANT_CASE">CONSTANT_</button>
+      <button class="sb-btn" data-action="dotCase" title="dot.case">dot.case</button>
+      <button class="sb-btn" data-action="alternatingCase" title="aLtErNaTiNg CaSe">aLtErNaTiNg</button>
+      <button class="sb-btn" data-action="inverseCase" title="Flip UPPER↔lower for every letter">iNVERSE</button>
+      <button class="sb-btn" data-action="slugify" title="lowercase-slug-with-hyphens (removes accents &amp; punctuation)">Slugify</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Clean</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="uniqueLines" title="Remove duplicate lines (keep first occurrence)">Unique Lines</button>
+      <button class="sb-btn" data-action="removeBlanks" title="Delete all empty lines">Remove Blanks</button>
+      <button class="sb-btn" data-action="trimLines" title="Strip leading &amp; trailing whitespace from each line">Trim</button>
+      <button class="sb-btn" data-action="removeExtraSpaces" title="Collapse multiple consecutive spaces into one">Extra Spaces</button>
+      <button class="sb-btn" data-action="removeHTMLTags" title="Strip all HTML/XML tags leaving plain text">Strip HTML</button>
+      <button class="sb-btn" data-action="sortList" title="Deduplicate + remove blanks + interleave lines">List Sorter</button>
+      <button class="sb-btn" data-action="removeAccents" title="Remove diacritical marks (é→e, ñ→n, ü→u)">No Accents</button>
+      <button class="sb-btn" data-action="removePunctuation" title="Remove all punctuation characters">No Punct.</button>
+      <button class="sb-btn" data-action="removeNumbers" title="Remove all digit characters 0–9">No Numbers</button>
+      <button class="sb-btn" data-action="removeNonASCII" title="Remove characters with code point > 127">ASCII Only</button>
+      <button class="sb-btn" data-action="dedupeWords" title="Remove duplicate words within each line">Dedupe Words</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Encode</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="encodeURL" title="URL-encode (encodeURIComponent)">URL Encode</button>
+      <button class="sb-btn" data-action="decodeURL" title="URL-decode (decodeURIComponent)">URL Decode</button>
+      <button class="sb-btn" data-action="base64Encode" title="Base64 encode">B64 Encode</button>
+      <button class="sb-btn" data-action="base64Decode" title="Base64 decode">B64 Decode</button>
+      <button class="sb-btn" data-action="htmlEncode" title="HTML entity encode (&amp;amp; &amp;lt; &amp;gt; &amp;quot;)">HTML Encode</button>
+      <button class="sb-btn" data-action="htmlDecode" title="HTML entity decode back to characters">HTML Decode</button>
+      <button class="sb-btn" data-action="rot13" title="ROT13 cipher — rotate each letter 13 positions">ROT13</button>
+      <button class="sb-btn" data-action="hexEncode" title="Encode text bytes as hex pairs (e.g. 68 65 6c 6c 6f)">Hex Encode</button>
+      <button class="sb-btn" data-action="hexDecode" title="Decode hex pairs back to text">Hex Decode</button>
+      <button class="sb-btn" data-action="binaryEncode" title="Encode text bytes as 8-bit binary groups">Bin Encode</button>
+      <button class="sb-btn" data-action="binaryDecode" title="Decode binary string back to text">Bin Decode</button>
+      <button class="sb-btn" data-action="unicodeEscape" title="Escape characters to \uXXXX sequences">\u Escape</button>
+      <button class="sb-btn" data-action="unicodeUnescape" title="Unescape \uXXXX sequences back to characters">\u Unescape</button>
+      <button class="sb-btn" data-action="jsonEscape" title="Escape string for embedding inside JSON (adds \" escapes etc.)">JSON Escape</button>
+      <button class="sb-btn" data-action="jsonUnescape" title="Unescape a JSON-encoded string">JSON Unescape</button>
+      <button class="sb-btn" data-action="morseEncode" title="Encode text to Morse code (· and −)">Morse Encode</button>
+      <button class="sb-btn" data-action="morseDecode" title="Decode Morse code back to text">Morse Decode</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Hash</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="md5Hash" title="MD5 hash (hex output)">MD5</button>
+      <button class="sb-btn" data-action="sha1Hash" title="SHA-1 hash (hex output)">SHA-1</button>
+      <button class="sb-btn" data-action="sha256Hash" title="SHA-256 hash (hex output)">SHA-256</button>
+      <button class="sb-btn" data-action="sha512Hash" title="SHA-512 hash (hex output)">SHA-512</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Data</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="jsonFormat" title="Pretty-print JSON (indent size = X, default 2)">JSON Format</button>
+      <button class="sb-btn" data-action="jsonMinify" title="Minify / compact JSON to one line">JSON Minify</button>
+      <button class="sb-btn" data-action="csvToJson" title="Convert CSV to a JSON array of objects">CSV → JSON</button>
+      <button class="sb-btn" data-action="jsonToCsv" title="Convert JSON array of objects to CSV">JSON → CSV</button>
+      <button class="sb-btn" data-action="jsonToTable" title="Convert JSON array to a Markdown table">JSON → Table</button>
+      <button class="sb-btn" data-action="csvToTable" title="Convert CSV to a Markdown table">CSV → Table</button>
+      <button class="sb-btn" data-action="extractEmails" title="Extract all email addresses, one per line">Extract Emails</button>
+      <button class="sb-btn" data-action="extractUrls" title="Extract all http/https URLs, one per line">Extract URLs</button>
+      <button class="sb-btn" data-action="extractNumbers" title="Extract all numbers (integers and decimals), one per line">Extract Nums</button>
+      <button class="sb-btn" data-action="jwtDecode" title="Decode a JWT token — shows header &amp; payload as JSON">JWT Decode</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Generate</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="loremIpsum" title="Generate X paragraphs of Lorem Ipsum (default 3)">Lorem Ipsum</button>
+      <button class="sb-btn" data-action="uuidV4" title="Generate X UUID v4 values, one per line (default 1)">UUID v4</button>
+      <button class="sb-btn" data-action="randomNumbers" title="Generate X random integers from 0 to Y (default: 10 nums, 0–100)">Random Nums</button>
+      <button class="sb-btn" data-action="numberSequence" title="Generate integer sequence from X to Y, one per line">Sequence</button>
+      <button class="sb-btn" data-action="insertTimestamp" title="Insert current Unix timestamp (seconds since epoch)">Timestamp</button>
+      <button class="sb-btn" data-action="insertDateTime" title="Insert current ISO 8601 date/time">Date / Time</button>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <button class="sb-head"><span class="sb-arrow">▾</span>Nav</button>
+    <div class="sb-body">
+      <button class="sb-btn" data-action="gotoLine" title="Move cursor to line number X">Go to Line</button>
+      <button class="sb-btn" data-action="selectLine" title="Select the entire line at line number X">Select Line</button>
+    </div>
+  </div>
+</nav>
+
+<div id="main">
+  <textarea id="D" wrap="off" spellcheck="false"
+    placeholder="Paste or type text here, or drag &amp; drop a file…"></textarea>
+  <div id="find-panel" hidden>
+    <input id="fp-find" placeholder="Find…" autocomplete="off" spellcheck="false">
+    <input id="fp-replace" placeholder="Replace with…" autocomplete="off" spellcheck="false">
+    <label class="fp-label"><input type="checkbox" id="fp-regex"> Regex</label>
+    <label class="fp-label"><input type="checkbox" id="fp-case"> Case</label>
+    <button class="fp-btn" id="fp-prev" title="Previous match (Shift+Enter)">◀</button>
+    <button class="fp-btn" id="fp-next" title="Next match (Enter)">▶</button>
+    <button class="fp-btn" id="fp-repl-one">Replace</button>
+    <button class="fp-btn" id="fp-repl-all">All</button>
+    <span id="fp-count"></span>
+    <button class="fp-btn" id="fp-close" title="Close (Esc)">✕</button>
   </div>
 </div>
-
-<textarea id="D" wrap="off" spellcheck="false" placeholder="Paste or type your text here…"></textarea>
 
 <div id="footer">
   <span id="status">Ready</span>
-  <span>Original by <strong>Rashid Saleem</strong></span>
+  <div id="xy-fields">
+    <div class="xy-wrap">
+      <label for="X">X&nbsp;=</label>
+      <input id="X" class="t" value="&amp;" spellcheck="false" autocomplete="off">
+    </div>
+    <div class="xy-wrap">
+      <label for="Y">Y&nbsp;=</label>
+      <input id="Y" class="t" value="'\n'" spellcheck="false" autocomplete="off">
+    </div>
+  </div>
+  <span class="credit">by <a href="https://github.com/whatsdd" target="_blank">Rashid Saleem</a></span>
 </div>
+
+<div id="toast"></div>
+<input type="file" id="file-open" accept=".txt,.csv,.json,.md,.log,.xml,.html,.js,.ts,.css" style="display:none">
 
 <script>
 'use strict';
 
-var D = document.getElementById('D');
-var Xin = document.getElementById('X');
-var Yin = document.getElementById('Y');
+/* ── DOM refs ─────────────────────────────────────────────────────────── */
+var D      = document.getElementById('D');
+var Xin    = document.getElementById('X');
+var Yin    = document.getElementById('Y');
 var status = document.getElementById('status');
 
 function X() { return Xin.value; }
 function Y() { return Yin.value; }
 
-// Split on any line ending; return array of lines
-function getLines() {
-  return D.value.split(/\r\n|\r|\n/);
+/* ── History (undo / redo) ────────────────────────────────────────────── */
+var _hist = [''], _hIdx = 0;
+
+function pushHistory() {
+  _hist = _hist.slice(0, _hIdx + 1);
+  _hist.push(D.value);
+  if (_hist.length > 100) _hist.shift();
+  _hIdx = _hist.length - 1;
+  _syncUndoBtns();
 }
 
-// Join lines back with Unix line endings
-function setLines(lines) {
-  D.value = lines.join('\n');
-  updateStatus();
+function undo() {
+  if (_hIdx > 0) { _hIdx--; D.value = _hist[_hIdx]; updateStatus(); _syncUndoBtns(); }
+}
+function redo() {
+  if (_hIdx < _hist.length - 1) { _hIdx++; D.value = _hist[_hIdx]; updateStatus(); _syncUndoBtns(); }
+}
+function _syncUndoBtns() {
+  document.getElementById('btn-undo').disabled = _hIdx <= 0;
+  document.getElementById('btn-redo').disabled = _hIdx >= _hist.length - 1;
 }
 
+/* ── Core helpers ─────────────────────────────────────────────────────── */
+function getLines() { return D.value.split(/\r\n|\r|\n/); }
+function setLines(lines) { D.value = lines.join('\n'); updateStatus(); }
 function getVal() { return D.value; }
 function setVal(v) { D.value = v; updateStatus(); }
 
 function updateStatus() {
-  var lines = getLines();
-  var chars = D.value.length;
-  var words = D.value.trim() === '' ? 0 : D.value.trim().split(/\s+/).length;
+  var v = D.value;
+  var lines = v.split(/\r\n|\r|\n/);
+  var chars = v.length;
+  var words = v.trim() === '' ? 0 : v.trim().split(/\s+/).length;
+  var sel = D.selectionEnd - D.selectionStart;
+  var selPart = sel > 0 ? ' · sel: ' + sel : '';
   status.textContent = lines.length + ' line' + (lines.length === 1 ? '' : 's') +
-    ', ' + chars + ' char' + (chars === 1 ? '' : 's') +
-    ', ' + words + ' word' + (words === 1 ? '' : 's');
+    ' · ' + chars + ' char' + (chars === 1 ? '' : 's') +
+    ' · ' + words + ' word' + (words === 1 ? '' : 's') + selPart;
 }
 
-// ── Operations ────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function() { t.classList.remove('show'); }, 2000);
+}
 
-function insert() {
-  var lines = getLines();
-  for (var i = 0; i < lines.length; i++) {
-    if (lines[i] !== '') {
-      lines[i] = X() + lines[i] + Y();
+function insertAtCursor(text) {
+  pushHistory();
+  var s = D.selectionStart, e = D.selectionEnd;
+  D.value = D.value.substring(0, s) + text + D.value.substring(e);
+  D.selectionStart = D.selectionEnd = s + text.length;
+  updateStatus();
+}
+
+/* ── toWords helper for case transforms ───────────────────────────────── */
+function toWords(s) {
+  return s
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .split(/[\s_\-\.]+/)
+    .map(function(w) { return w.toLowerCase(); })
+    .filter(Boolean);
+}
+
+/* ── CSV parser ───────────────────────────────────────────────────────── */
+function parseCSV(text) {
+  var rows = [], row = [], field = '', inQ = false, i = 0, ch;
+  while (i < text.length) {
+    ch = text[i];
+    if (inQ) {
+      if (ch === '"') {
+        if (text[i+1] === '"') { field += '"'; i += 2; continue; }
+        inQ = false;
+      } else { field += ch; }
+    } else {
+      if (ch === '"') { inQ = true; }
+      else if (ch === ',') { row.push(field); field = ''; }
+      else if (ch === '\r') { /* skip */ }
+      else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else { field += ch; }
     }
+    i++;
   }
-  setLines(lines);
+  if (field !== '' || row.length > 0) { row.push(field); rows.push(row); }
+  if (rows.length && rows[rows.length-1].length === 1 && rows[rows.length-1][0] === '') rows.pop();
+  return rows;
+}
+
+/* ── Morse tables ─────────────────────────────────────────────────────── */
+var MENC = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',0:'-----',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.'};
+var MDEC = {};
+Object.keys(MENC).forEach(function(k){ MDEC[MENC[k]] = k; });
+
+/* ── MD5 ──────────────────────────────────────────────────────────────── */
+function md5(str) {
+  function sa(x,y){var l=(x&0xFFFF)+(y&0xFFFF);return((x>>16)+(y>>16)+(l>>16)<<16)|(l&0xFFFF);}
+  function rl(n,b){return(n<<b)|(n>>>(32-b));}
+  function cm(q,a,b,x,s,t){return sa(rl(sa(sa(a,q),sa(x,t)),s),b);}
+  function ff(a,b,c,d,x,s,t){return cm((b&c)|(~b&d),a,b,x,s,t);}
+  function gg(a,b,c,d,x,s,t){return cm((b&d)|(c&~d),a,b,x,s,t);}
+  function hh(a,b,c,d,x,s,t){return cm(b^c^d,a,b,x,s,t);}
+  function ii(a,b,c,d,x,s,t){return cm(c^(b|~d),a,b,x,s,t);}
+  var bytes = Array.from(new TextEncoder().encode(str));
+  var len = bytes.length;
+  var nb = ((len+8)>>6)+1;
+  var M = new Array(nb*16).fill(0);
+  for(var i=0;i<len;i++) M[i>>2]|=bytes[i]<<((i&3)*8);
+  M[len>>2]|=0x80<<((len&3)*8);
+  M[nb*16-2]=len*8;
+  var a=0x67452301,b=0xEFCDAB89,c=0x98BADCFE,d=0x10325476;
+  for(var i=0;i<M.length;i+=16){
+    var aa=a,bb=b,cc=c,dd=d,x=M.slice(i,i+16);
+    a=ff(a,b,c,d,x[0],7,-680876936);d=ff(d,a,b,c,x[1],12,-389564586);c=ff(c,d,a,b,x[2],17,606105819);b=ff(b,c,d,a,x[3],22,-1044525330);
+    a=ff(a,b,c,d,x[4],7,-176418897);d=ff(d,a,b,c,x[5],12,1200080426);c=ff(c,d,a,b,x[6],17,-1473231341);b=ff(b,c,d,a,x[7],22,-45705983);
+    a=ff(a,b,c,d,x[8],7,1770035416);d=ff(d,a,b,c,x[9],12,-1958414417);c=ff(c,d,a,b,x[10],17,-42063);b=ff(b,c,d,a,x[11],22,-1990404162);
+    a=ff(a,b,c,d,x[12],7,1804603682);d=ff(d,a,b,c,x[13],12,-40341101);c=ff(c,d,a,b,x[14],17,-1502002290);b=ff(b,c,d,a,x[15],22,1236535329);
+    a=gg(a,b,c,d,x[1],5,-165796510);d=gg(d,a,b,c,x[6],9,-1069501632);c=gg(c,d,a,b,x[11],14,643717713);b=gg(b,c,d,a,x[0],20,-373897302);
+    a=gg(a,b,c,d,x[5],5,-701558691);d=gg(d,a,b,c,x[10],9,38016083);c=gg(c,d,a,b,x[15],14,-660478335);b=gg(b,c,d,a,x[4],20,-405537848);
+    a=gg(a,b,c,d,x[9],5,568446438);d=gg(d,a,b,c,x[14],9,-1019803690);c=gg(c,d,a,b,x[3],14,-187363961);b=gg(b,c,d,a,x[8],20,1163531501);
+    a=gg(a,b,c,d,x[13],5,-1444681467);d=gg(d,a,b,c,x[2],9,-51403784);c=gg(c,d,a,b,x[7],14,1735328473);b=gg(b,c,d,a,x[12],20,-1926607734);
+    a=hh(a,b,c,d,x[5],4,-378558);d=hh(d,a,b,c,x[8],11,-2022574463);c=hh(c,d,a,b,x[11],16,1839030562);b=hh(b,c,d,a,x[14],23,-35309556);
+    a=hh(a,b,c,d,x[1],4,-1530992060);d=hh(d,a,b,c,x[4],11,1272893353);c=hh(c,d,a,b,x[7],16,-155497632);b=hh(b,c,d,a,x[10],23,-1094730640);
+    a=hh(a,b,c,d,x[13],4,681279174);d=hh(d,a,b,c,x[0],11,-358537222);c=hh(c,d,a,b,x[3],16,-722521979);b=hh(b,c,d,a,x[6],23,76029189);
+    a=hh(a,b,c,d,x[9],4,-640364487);d=hh(d,a,b,c,x[12],11,-421815835);c=hh(c,d,a,b,x[15],16,530742520);b=hh(b,c,d,a,x[2],23,-995338651);
+    a=ii(a,b,c,d,x[0],6,-198630844);d=ii(d,a,b,c,x[7],10,1126891415);c=ii(c,d,a,b,x[14],15,-1416354905);b=ii(b,c,d,a,x[5],21,-57434055);
+    a=ii(a,b,c,d,x[12],6,1700485571);d=ii(d,a,b,c,x[3],10,-1894986606);c=ii(c,d,a,b,x[10],15,-1051523);b=ii(b,c,d,a,x[1],21,-2054922799);
+    a=ii(a,b,c,d,x[8],6,1873313359);d=ii(d,a,b,c,x[15],10,-30611744);c=ii(c,d,a,b,x[6],15,-1560198380);b=ii(b,c,d,a,x[13],21,1309151649);
+    a=ii(a,b,c,d,x[4],6,-145523070);d=ii(d,a,b,c,x[11],10,-1120210379);c=ii(c,d,a,b,x[2],15,718787259);b=ii(b,c,d,a,x[9],21,-343485551);
+    a=sa(a,aa);b=sa(b,bb);c=sa(c,cc);d=sa(d,dd);
+  }
+  function h(n){var s='',v;for(var j=0;j<=3;j++){v=(n>>>(j*8))&255;s+=('0'+v.toString(16)).slice(-2);}return s;}
+  return h(a)+h(b)+h(c)+h(d);
+}
+
+/* ── Lorem word bank ──────────────────────────────────────────────────── */
+var LOREM = 'lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure reprehenderit voluptate velit esse cillum eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum'.split(' ');
+
+/* ══════════════════════════════════════════════════════════════════════ */
+/*  OPERATIONS                                                           */
+/* ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Edit ─────────────────────────────────────────────────────────────── */
+function insert() {
+  pushHistory();
+  setLines(getLines().map(function(l){ return l === '' ? l : X()+l+Y(); }));
 }
 
 function replace(e) {
-  var isCmd = e.ctrlKey || e.metaKey;
+  pushHistory();
+  var isCmd = e && (e.ctrlKey || e.metaKey);
   if (!isCmd) {
     setVal(getVal().split(X()).join(Y()));
   } else {
-    // Evaluate Y as a JS expression for dynamic replacement
     var parts = getVal().split(X());
     for (var i = 1; i < parts.length; i++) {
-      /* jshint evil:true */
       parts[i] = eval(Y()) + parts[i]; // eslint-disable-line no-eval
     }
     setVal(parts.join(''));
   }
 }
 
-function deleteBefore() {
-  var lines = getLines();
-  for (var i = 0; i < lines.length; i++) {
-    var parts = lines[i].split(X());
-    if (parts.length > 1) parts.shift();
-    lines[i] = parts.join(X());
-  }
-  setLines(lines);
+function addLineNumbers() {
+  pushHistory();
+  setLines(getLines().map(function(l,i){ return (i+1)+'. '+l; }));
 }
 
-function deleteAfter() {
-  var lines = getLines();
-  for (var i = 0; i < lines.length; i++) {
-    var parts = lines[i].split(X());
-    if (parts.length > 1) parts.pop();
-    lines[i] = parts.join(X());
-  }
-  setLines(lines);
+function joinLines() {
+  pushHistory();
+  setVal(getLines().join(X()));
 }
 
-function deleteInBetween() {
-  var lines = getLines();
-  for (var i = 0; i < lines.length; i++) {
-    var xparts = lines[i].split(X());
-    var xx = xparts.shift();
-    var rest = xparts.join(X());
-    var yparts = rest.split(Y());
-    yparts.shift();
-    lines[i] = xx + yparts.join(Y());
-  }
-  setLines(lines);
-}
-
-function sortLines(e) {
-  var isCmd = e.ctrlKey || e.metaKey;
-  var lines = getLines().sort();
-  setLines(lines);
-  if (isCmd) reverseLines();
-}
-
-function reverseLines() {
-  setLines(getLines().reverse());
-}
-
-function uniqueLines() {
-  var seen = Object.create(null);
-  var result = getLines().filter(function(line) {
-    if (line in seen) return false;
-    seen[line] = true;
-    return true;
+function splitByX() {
+  pushHistory();
+  if (!X()) return;
+  var result = [];
+  getLines().forEach(function(l){
+    l.split(X()).forEach(function(p){ result.push(p); });
   });
   setLines(result);
 }
 
+function removeLinesWithX() {
+  pushHistory();
+  setLines(getLines().filter(function(l){ return !l.includes(X()); }));
+}
+
+function keepLinesWithX() {
+  pushHistory();
+  setLines(getLines().filter(function(l){ return l.includes(X()); }));
+}
+
+function duplicateLines() {
+  pushHistory();
+  var r = [];
+  getLines().forEach(function(l){ r.push(l); r.push(l); });
+  setLines(r);
+}
+
+function padLines() {
+  pushHistory();
+  var len = parseInt(X(), 10);
+  if (isNaN(len) || len <= 0) { showToast('X = target length, Y = pad char (default space)'); return; }
+  var pc = Y() || ' ';
+  setLines(getLines().map(function(l){ return l.padStart(len, pc); }));
+}
+
+/* ── Delete ───────────────────────────────────────────────────────────── */
+function deleteBefore() {
+  pushHistory();
+  setLines(getLines().map(function(l){
+    var p = l.split(X()); if (p.length > 1) p.shift(); return p.join(X());
+  }));
+}
+
+function deleteAfter() {
+  pushHistory();
+  setLines(getLines().map(function(l){
+    var p = l.split(X()); if (p.length > 1) p.pop(); return p.join(X());
+  }));
+}
+
+function deleteInBetween() {
+  pushHistory();
+  setLines(getLines().map(function(l){
+    var xp = l.split(X()); var xx = xp.shift(); var rest = xp.join(X());
+    var yp = rest.split(Y()); yp.shift(); return xx + yp.join(Y());
+  }));
+}
+
+/* ── Order ────────────────────────────────────────────────────────────── */
+function sortLines(e) {
+  pushHistory();
+  var lines = getLines().sort();
+  setLines(lines);
+  if (e && (e.ctrlKey || e.metaKey)) reverseLines(true);
+}
+
+function reverseLines(skipHistory) {
+  if (!skipHistory) pushHistory();
+  setLines(getLines().reverse());
+}
+
+function shuffleLines() {
+  pushHistory();
+  var lines = getLines();
+  for (var i = lines.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i+1));
+    var t = lines[i]; lines[i] = lines[j]; lines[j] = t;
+  }
+  setLines(lines);
+}
+
+function reverseEachLine() {
+  pushHistory();
+  setLines(getLines().map(function(l){ return l.split('').reverse().join(''); }));
+}
+
+/* ── Case ─────────────────────────────────────────────────────────────── */
+function uppercase()  { pushHistory(); setVal(getVal().toUpperCase()); }
+function lowercase()  { pushHistory(); setVal(getVal().toLowerCase()); }
+
+function titleCase() {
+  pushHistory();
+  setVal(getVal().replace(/\w\S*/g, function(w){
+    return w.charAt(0).toUpperCase() + w.substr(1).toLowerCase();
+  }));
+}
+
+function sentenceCase() {
+  pushHistory();
+  setVal(getVal().toLowerCase().replace(/(^\s*\w|[.?!]\s+\w)/g, function(c){
+    return c.toUpperCase();
+  }));
+}
+
+function camelCase() {
+  pushHistory();
+  setLines(getLines().map(function(l){
+    var words = toWords(l);
+    return words.map(function(w,i){ return i===0 ? w : w.charAt(0).toUpperCase()+w.slice(1); }).join('');
+  }));
+}
+
+function pascalCase() {
+  pushHistory();
+  setLines(getLines().map(function(l){
+    return toWords(l).map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join('');
+  }));
+}
+
+function snakeCase() {
+  pushHistory();
+  setLines(getLines().map(function(l){ return toWords(l).join('_'); }));
+}
+
+function kebabCase() {
+  pushHistory();
+  setLines(getLines().map(function(l){ return toWords(l).join('-'); }));
+}
+
+function constantCase() {
+  pushHistory();
+  setLines(getLines().map(function(l){ return toWords(l).join('_').toUpperCase(); }));
+}
+
+function dotCase() {
+  pushHistory();
+  setLines(getLines().map(function(l){ return toWords(l).join('.'); }));
+}
+
+function alternatingCase() {
+  pushHistory();
+  var up = true;
+  setVal(getVal().replace(/[a-zA-Z]/g, function(c){
+    var r = up ? c.toUpperCase() : c.toLowerCase(); up = !up; return r;
+  }));
+}
+
+function inverseCase() {
+  pushHistory();
+  setVal(getVal().replace(/[a-zA-Z]/g, function(c){
+    return c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase();
+  }));
+}
+
+function slugify() {
+  pushHistory();
+  setLines(getLines().map(function(l){
+    return l.normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim()
+      .replace(/[\s-]+/g,'-');
+  }));
+}
+
+/* ── Clean ────────────────────────────────────────────────────────────── */
+function uniqueLines() {
+  pushHistory();
+  var seen = Object.create(null);
+  setLines(getLines().filter(function(l){
+    if (l in seen) return false; seen[l]=true; return true;
+  }));
+}
+
 function removeBlanks() {
-  setLines(getLines().filter(function(l) { return l !== ''; }));
+  pushHistory();
+  setLines(getLines().filter(function(l){ return l !== ''; }));
+}
+
+function trimLines() {
+  pushHistory();
+  setLines(getLines().map(function(l){ return l.trim(); }));
+}
+
+function removeExtraSpaces() {
+  pushHistory();
+  setLines(getLines().map(function(l){ return l.replace(/ {2,}/g,' ').trim(); }));
+}
+
+function removeHTMLTags() {
+  pushHistory();
+  setVal(getVal().replace(/<[^>]*>/g,''));
 }
 
 function sortList() {
   uniqueLines();
   removeBlanks();
   var lines = getLines();
-  var result = [];
-  for (var i = 0; i < lines.length; i++) {
-    result.push(i % 2 === 0 ? lines[i / 2] : lines[lines.length - (i - 1) / 2 - 1]);
+  var r = [];
+  for (var i=0;i<lines.length;i++){
+    r.push(i%2===0 ? lines[i/2] : lines[lines.length-(i-1)/2-1]);
   }
-  setLines(result);
+  setLines(r);
 }
 
-function encodeURL() {
-  setVal(encodeURIComponent(getVal()));
+function removeAccents() {
+  pushHistory();
+  setVal(getVal().normalize('NFD').replace(/[̀-ͯ]/g,''));
 }
+
+function removePunctuation() {
+  pushHistory();
+  setVal(getVal().replace(/[^\w\s]|_/g,''));
+}
+
+function removeNumbers() {
+  pushHistory();
+  setVal(getVal().replace(/\d/g,''));
+}
+
+function removeNonASCII() {
+  pushHistory();
+  setVal(getVal().replace(/[^\x00-\x7F]/g,''));
+}
+
+function dedupeWords() {
+  pushHistory();
+  setLines(getLines().map(function(l){
+    var seen = Object.create(null);
+    return l.split(/\s+/).filter(function(w){
+      if(!w) return true;
+      var k = w.toLowerCase();
+      if(k in seen) return false; seen[k]=true; return true;
+    }).join(' ');
+  }));
+}
+
+/* ── Encode ───────────────────────────────────────────────────────────── */
+function encodeURL() { pushHistory(); setVal(encodeURIComponent(getVal())); }
 
 function decodeURL() {
-  try {
-    setVal(decodeURIComponent(getVal()));
-  } catch (e) {
-    setVal(getVal()); // leave unchanged if malformed
-  }
-}
-
-function uppercase() { setVal(getVal().toUpperCase()); }
-function lowercase() { setVal(getVal().toLowerCase()); }
-
-function gotoLine() {
-  var lines = getLines();
-  var n = parseInt(X(), 10);
-  if (isNaN(n) || n < 1 || n > lines.length) {
-    alert('Line ' + n + ' is out of range (1–' + lines.length + ')');
-    return;
-  }
-  var pos = 0;
-  for (var i = 0; i < n - 1; i++) { pos += lines[i].length + 1; }
-  D.focus();
-  D.setSelectionRange(pos, pos);
-}
-
-// ── Additional operations ─────────────────────────────────────────────────────
-
-function titleCase() {
-  setVal(getVal().replace(/\w\S*/g, function(w) {
-    return w.charAt(0).toUpperCase() + w.substr(1).toLowerCase();
-  }));
-}
-
-function sentenceCase() {
-  setVal(getVal().toLowerCase().replace(/(^\s*\w|[.?!]\s+\w)/g, function(c) {
-    return c.toUpperCase();
-  }));
-}
-
-function trimLines() {
-  setLines(getLines().map(function(l) { return l.trim(); }));
-}
-
-function removeExtraSpaces() {
-  setLines(getLines().map(function(l) { return l.replace(/  +/g, ' ').trim(); }));
-}
-
-function removeHTMLTags() {
-  setVal(getVal().replace(/<[^>]*>/g, ''));
-}
-
-function shuffleLines() {
-  var lines = getLines();
-  for (var i = lines.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = lines[i]; lines[i] = lines[j]; lines[j] = tmp;
-  }
-  setLines(lines);
-}
-
-function reverseEachLine() {
-  setLines(getLines().map(function(l) { return l.split('').reverse().join(''); }));
-}
-
-function addLineNumbers() {
-  setLines(getLines().map(function(l, i) { return (i + 1) + '. ' + l; }));
-}
-
-function joinLines() {
-  setVal(getLines().join(X()));
+  pushHistory();
+  try { setVal(decodeURIComponent(getVal())); }
+  catch(e) { showToast('URL decode failed: malformed input'); }
 }
 
 function base64Encode() {
-  try { setVal(btoa(unescape(encodeURIComponent(getVal())))); }
-  catch(e) { alert('Base64 encode failed: ' + e.message); }
+  pushHistory();
+  try {
+    var bytes = new TextEncoder().encode(getVal());
+    var bin = Array.from(bytes, function(b){ return String.fromCharCode(b); }).join('');
+    setVal(btoa(bin));
+  } catch(e) { showToast('Base64 encode failed'); }
 }
 
 function base64Decode() {
-  try { setVal(decodeURIComponent(escape(atob(getVal())))); }
-  catch(e) { alert('Base64 decode failed: invalid input'); }
+  pushHistory();
+  try {
+    var bin = atob(getVal());
+    var bytes = new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    setVal(new TextDecoder().decode(bytes));
+  } catch(e) { showToast('Base64 decode failed: invalid input'); }
 }
 
 function htmlEncode() {
-  setVal(getVal()
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;'));
+  pushHistory();
+  setVal(getVal().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;'));
 }
 
 function htmlDecode() {
-  var txt = document.createElement('textarea');
-  txt.innerHTML = getVal();
-  setVal(txt.value);
+  pushHistory();
+  var t = document.createElement('textarea');
+  t.innerHTML = getVal(); setVal(t.value);
 }
 
 function rot13() {
-  setVal(getVal().replace(/[a-zA-Z]/g, function(c) {
-    return String.fromCharCode(
-      (c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26
-    );
+  pushHistory();
+  setVal(getVal().replace(/[a-zA-Z]/g, function(c){
+    return String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26);
   }));
 }
 
-// ── Action dispatch ───────────────────────────────────────────────────────────
+function hexEncode() {
+  pushHistory();
+  var bytes = Array.from(new TextEncoder().encode(getVal()));
+  setVal(bytes.map(function(b){ return b.toString(16).padStart(2,'0'); }).join(' '));
+}
 
+function hexDecode() {
+  pushHistory();
+  try {
+    var pairs = getVal().trim().split(/\s+/);
+    var bytes = new Uint8Array(pairs.map(function(p){ return parseInt(p,16); }));
+    setVal(new TextDecoder().decode(bytes));
+  } catch(e) { showToast('Hex decode failed: invalid input'); }
+}
+
+function binaryEncode() {
+  pushHistory();
+  var bytes = Array.from(new TextEncoder().encode(getVal()));
+  setVal(bytes.map(function(b){ return b.toString(2).padStart(8,'0'); }).join(' '));
+}
+
+function binaryDecode() {
+  pushHistory();
+  try {
+    var groups = getVal().trim().split(/\s+/);
+    var bytes = new Uint8Array(groups.map(function(g){ return parseInt(g,2); }));
+    setVal(new TextDecoder().decode(bytes));
+  } catch(e) { showToast('Binary decode failed: invalid input'); }
+}
+
+function unicodeEscape() {
+  pushHistory();
+  setVal(getVal().replace(/./gsu, function(c){
+    var cp = c.codePointAt(0);
+    return cp > 0xFFFF
+      ? '\\u{'+cp.toString(16)+'}'
+      : '\\u'+cp.toString(16).padStart(4,'0');
+  }));
+}
+
+function unicodeUnescape() {
+  pushHistory();
+  setVal(getVal()
+    .replace(/\\u\{([0-9a-fA-F]+)\}/g, function(_,h){ return String.fromCodePoint(parseInt(h,16)); })
+    .replace(/\\u([0-9a-fA-F]{4})/g, function(_,h){ return String.fromCharCode(parseInt(h,16)); }));
+}
+
+function jsonEscape() {
+  pushHistory();
+  setVal(JSON.stringify(getVal()).slice(1,-1));
+}
+
+function jsonUnescape() {
+  pushHistory();
+  try { setVal(JSON.parse('"'+getVal().replace(/"/g,'\\"')+'"')); }
+  catch(e) { showToast('JSON unescape failed: check input'); }
+}
+
+function morseEncode() {
+  pushHistory();
+  setVal(getVal().toUpperCase().split('').map(function(c){
+    if(c===' ') return '/';
+    return MENC[c] !== undefined ? MENC[c] : c;
+  }).join(' '));
+}
+
+function morseDecode() {
+  pushHistory();
+  setVal(getVal().split(' / ').map(function(word){
+    return word.split(' ').map(function(code){
+      return MDEC[code] !== undefined ? MDEC[code] : code;
+    }).join('');
+  }).join(' '));
+}
+
+/* ── Hash ─────────────────────────────────────────────────────────────── */
+function md5Hash() {
+  pushHistory();
+  setVal(md5(getVal()));
+}
+
+function _webCryptoHash(algo) {
+  pushHistory();
+  var v = getVal();
+  status.textContent = 'Hashing…';
+  var buf = new TextEncoder().encode(v);
+  crypto.subtle.digest(algo, buf).then(function(hashBuf){
+    var hex = Array.from(new Uint8Array(hashBuf))
+      .map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+    setVal(hex);
+  }).catch(function(e){ showToast('Hash failed: '+e.message); });
+}
+
+function sha1Hash()   { _webCryptoHash('SHA-1'); }
+function sha256Hash() { _webCryptoHash('SHA-256'); }
+function sha512Hash() { _webCryptoHash('SHA-512'); }
+
+/* ── Data ─────────────────────────────────────────────────────────────── */
+function jsonFormat() {
+  pushHistory();
+  try {
+    var indent = parseInt(X(),10); if(isNaN(indent)||indent<0) indent=2;
+    setVal(JSON.stringify(JSON.parse(getVal()), null, indent));
+  } catch(e) { showToast('JSON parse error: '+e.message); }
+}
+
+function jsonMinify() {
+  pushHistory();
+  try { setVal(JSON.stringify(JSON.parse(getVal()))); }
+  catch(e) { showToast('JSON parse error: '+e.message); }
+}
+
+function csvToJson() {
+  pushHistory();
+  var rows = parseCSV(getVal());
+  if(rows.length < 2){ showToast('CSV needs at least 2 rows (header + data)'); return; }
+  var headers = rows[0];
+  var result = rows.slice(1).map(function(row){
+    var obj = {};
+    headers.forEach(function(h,i){ obj[h] = row[i] !== undefined ? row[i] : ''; });
+    return obj;
+  });
+  setVal(JSON.stringify(result, null, 2));
+}
+
+function jsonToCsv() {
+  pushHistory();
+  try {
+    var data = JSON.parse(getVal());
+    if(!Array.isArray(data)||data.length===0) throw new Error('Expected non-empty JSON array');
+    var keys = Object.keys(data[0]);
+    function esc(v){ var s=String(v==null?'':v); return(s.includes(',')||s.includes('"')||s.includes('\n'))?'"'+s.replace(/"/g,'""')+'"':s; }
+    var lines = [keys.join(',')];
+    data.forEach(function(row){ lines.push(keys.map(function(k){ return esc(row[k]); }).join(',')); });
+    setVal(lines.join('\n'));
+  } catch(e) { showToast('JSON→CSV failed: '+e.message); }
+}
+
+function jsonToTable() {
+  pushHistory();
+  try {
+    var data = JSON.parse(getVal());
+    if(!Array.isArray(data)||data.length===0) throw new Error('Expected non-empty JSON array');
+    var keys = Object.keys(data[0]);
+    var lines = ['| '+keys.join(' | ')+' |', '| '+keys.map(function(){ return '---'; }).join(' | ')+' |'];
+    data.forEach(function(row){
+      lines.push('| '+keys.map(function(k){ return String(row[k]!=null?row[k]:''); }).join(' | ')+' |');
+    });
+    setVal(lines.join('\n'));
+  } catch(e) { showToast('JSON→Table failed: '+e.message); }
+}
+
+function csvToTable() {
+  pushHistory();
+  var rows = parseCSV(getVal());
+  if(rows.length===0) return;
+  var lines = ['| '+rows[0].join(' | ')+' |', '| '+rows[0].map(function(){ return '---'; }).join(' | ')+' |'];
+  rows.slice(1).forEach(function(row){ lines.push('| '+row.join(' | ')+' |'); });
+  setVal(lines.join('\n'));
+}
+
+function extractEmails() {
+  pushHistory();
+  var m = getVal().match(/[\w.+\-]+@[\w\-]+\.[\w.]{2,}/g) || [];
+  setVal(Array.from(new Set(m)).join('\n'));
+}
+
+function extractUrls() {
+  pushHistory();
+  var m = getVal().match(/https?:\/\/[^\s"'<>)\]]+/g) || [];
+  setVal(Array.from(new Set(m)).join('\n'));
+}
+
+function extractNumbers() {
+  pushHistory();
+  var m = getVal().match(/-?\d+\.?\d*/g) || [];
+  setVal(m.join('\n'));
+}
+
+function jwtDecode() {
+  pushHistory();
+  function b64u(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; try{ var b=atob(s); var bytes=new Uint8Array(b.length); for(var i=0;i<b.length;i++) bytes[i]=b.charCodeAt(i); return new TextDecoder().decode(bytes); } catch(e){ return s; } }
+  var parts = getVal().trim().split('.');
+  if(parts.length!==3){ showToast('Not a valid JWT — expected 3 dot-separated parts'); return; }
+  try {
+    var hdr = JSON.parse(b64u(parts[0]));
+    var pay = JSON.parse(b64u(parts[1]));
+    setVal('// Header\n'+JSON.stringify(hdr,null,2)+'\n\n// Payload\n'+JSON.stringify(pay,null,2)+'\n\n// Signature (raw)\n'+parts[2]);
+  } catch(e) { showToast('JWT decode failed: '+e.message); }
+}
+
+/* ── Generate ─────────────────────────────────────────────────────────── */
+function loremIpsum() {
+  var n = parseInt(X(),10)||3;
+  var paras = [];
+  for(var p=0;p<n;p++){
+    var sents=[];
+    for(var s=0;s<(4+Math.floor(Math.random()*4));s++){
+      var wc=8+Math.floor(Math.random()*12), ws=[];
+      for(var w=0;w<wc;w++) ws.push(LOREM[Math.floor(Math.random()*LOREM.length)]);
+      var sent=ws.join(' '); sents.push(sent.charAt(0).toUpperCase()+sent.slice(1)+'.');
+    }
+    paras.push(sents.join(' '));
+  }
+  insertAtCursor(paras.join('\n\n'));
+}
+
+function uuidV4() {
+  var n = parseInt(X(),10)||1;
+  var uuids = [];
+  for(var i=0;i<n;i++){
+    var a=new Uint8Array(16); crypto.getRandomValues(a);
+    a[6]=(a[6]&0x0f)|0x40; a[8]=(a[8]&0x3f)|0x80;
+    var h=Array.from(a,function(b){ return ('0'+b.toString(16)).slice(-2); });
+    uuids.push(h.slice(0,4).join('')+'-'+h.slice(4,6).join('')+'-'+h.slice(6,8).join('')+'-'+h.slice(8,10).join('')+'-'+h.slice(10).join(''));
+  }
+  insertAtCursor(uuids.join('\n'));
+}
+
+function randomNumbers() {
+  var count = parseInt(X(),10)||10;
+  var max   = parseInt(Y(),10);
+  if(isNaN(max)) max=100;
+  var r=[];
+  for(var i=0;i<count;i++) r.push(String(Math.floor(Math.random()*(max+1))));
+  insertAtCursor(r.join('\n'));
+}
+
+function numberSequence() {
+  var from=parseInt(X(),10), to=parseInt(Y(),10);
+  if(isNaN(from)||isNaN(to)){ showToast('Set X = start and Y = end'); return; }
+  var r=[], step=from<=to?1:-1;
+  for(var n=from; from<=to?n<=to:n>=to; n+=step) r.push(String(n));
+  insertAtCursor(r.join('\n'));
+}
+
+function insertTimestamp() { insertAtCursor(String(Math.floor(Date.now()/1000))); }
+function insertDateTime()  { insertAtCursor(new Date().toISOString()); }
+
+/* ── Nav ──────────────────────────────────────────────────────────────── */
+function gotoLine() {
+  var lines=getLines(), n=parseInt(X(),10);
+  if(isNaN(n)||n<1||n>lines.length){ showToast('Line '+n+' out of range (1–'+lines.length+')'); return; }
+  var pos=0; for(var i=0;i<n-1;i++) pos+=lines[i].length+1;
+  D.focus(); D.setSelectionRange(pos,pos);
+}
+
+function selectLine() {
+  var lines=getLines(), n=parseInt(X(),10);
+  if(isNaN(n)||n<1||n>lines.length){ showToast('Line '+n+' out of range (1–'+lines.length+')'); return; }
+  var pos=0; for(var i=0;i<n-1;i++) pos+=lines[i].length+1;
+  D.focus(); D.setSelectionRange(pos, pos+lines[n-1].length);
+}
+
+/* ── Action dispatch map ──────────────────────────────────────────────── */
 var actions = {
-  insert:         function(e) { insert(); },
-  replace:        function(e) { replace(e); },
-  deleteBefore:   function(e) { deleteBefore(); },
-  deleteInBetween:function(e) { deleteInBetween(); },
-  deleteAfter:    function(e) { deleteAfter(); },
-  sortLines:      function(e) { sortLines(e); },
-  reverseLines:   function(e) { reverseLines(); },
-  uppercase:      function(e) { uppercase(); },
-  lowercase:      function(e) { lowercase(); },
-  uniqueLines:    function(e) { uniqueLines(); },
-  removeBlanks:   function(e) { removeBlanks(); },
-  sortList:       function(e) { sortList(); },
-  encodeURL:      function(e) { encodeURL(); },
-  decodeURL:      function(e) { decodeURL(); },
-  gotoLine:          function(e) { gotoLine(); },
-  titleCase:         function(e) { titleCase(); },
-  sentenceCase:      function(e) { sentenceCase(); },
-  trimLines:         function(e) { trimLines(); },
-  removeExtraSpaces: function(e) { removeExtraSpaces(); },
-  removeHTMLTags:    function(e) { removeHTMLTags(); },
-  shuffleLines:      function(e) { shuffleLines(); },
-  reverseEachLine:   function(e) { reverseEachLine(); },
-  addLineNumbers:    function(e) { addLineNumbers(); },
-  joinLines:         function(e) { joinLines(); },
-  base64Encode:      function(e) { base64Encode(); },
-  base64Decode:      function(e) { base64Decode(); },
-  htmlEncode:        function(e) { htmlEncode(); },
-  htmlDecode:        function(e) { htmlDecode(); },
-  rot13:             function(e) { rot13(); },
+  insert:           function(e){ insert(); },
+  replace:          function(e){ replace(e); },
+  addLineNumbers:   function(e){ addLineNumbers(); },
+  joinLines:        function(e){ joinLines(); },
+  splitByX:         function(e){ splitByX(); },
+  removeLinesWithX: function(e){ removeLinesWithX(); },
+  keepLinesWithX:   function(e){ keepLinesWithX(); },
+  duplicateLines:   function(e){ duplicateLines(); },
+  padLines:         function(e){ padLines(); },
+  deleteBefore:     function(e){ deleteBefore(); },
+  deleteInBetween:  function(e){ deleteInBetween(); },
+  deleteAfter:      function(e){ deleteAfter(); },
+  sortLines:        function(e){ sortLines(e); },
+  reverseLines:     function(e){ reverseLines(false); },
+  shuffleLines:     function(e){ shuffleLines(); },
+  reverseEachLine:  function(e){ reverseEachLine(); },
+  uppercase:        function(e){ uppercase(); },
+  lowercase:        function(e){ lowercase(); },
+  titleCase:        function(e){ titleCase(); },
+  sentenceCase:     function(e){ sentenceCase(); },
+  camelCase:        function(e){ camelCase(); },
+  pascalCase:       function(e){ pascalCase(); },
+  snakeCase:        function(e){ snakeCase(); },
+  kebabCase:        function(e){ kebabCase(); },
+  constantCase:     function(e){ constantCase(); },
+  dotCase:          function(e){ dotCase(); },
+  alternatingCase:  function(e){ alternatingCase(); },
+  inverseCase:      function(e){ inverseCase(); },
+  slugify:          function(e){ slugify(); },
+  uniqueLines:      function(e){ uniqueLines(); },
+  removeBlanks:     function(e){ removeBlanks(); },
+  trimLines:        function(e){ trimLines(); },
+  removeExtraSpaces:function(e){ removeExtraSpaces(); },
+  removeHTMLTags:   function(e){ removeHTMLTags(); },
+  sortList:         function(e){ sortList(); },
+  removeAccents:    function(e){ removeAccents(); },
+  removePunctuation:function(e){ removePunctuation(); },
+  removeNumbers:    function(e){ removeNumbers(); },
+  removeNonASCII:   function(e){ removeNonASCII(); },
+  dedupeWords:      function(e){ dedupeWords(); },
+  encodeURL:        function(e){ encodeURL(); },
+  decodeURL:        function(e){ decodeURL(); },
+  base64Encode:     function(e){ base64Encode(); },
+  base64Decode:     function(e){ base64Decode(); },
+  htmlEncode:       function(e){ htmlEncode(); },
+  htmlDecode:       function(e){ htmlDecode(); },
+  rot13:            function(e){ rot13(); },
+  hexEncode:        function(e){ hexEncode(); },
+  hexDecode:        function(e){ hexDecode(); },
+  binaryEncode:     function(e){ binaryEncode(); },
+  binaryDecode:     function(e){ binaryDecode(); },
+  unicodeEscape:    function(e){ unicodeEscape(); },
+  unicodeUnescape:  function(e){ unicodeUnescape(); },
+  jsonEscape:       function(e){ jsonEscape(); },
+  jsonUnescape:     function(e){ jsonUnescape(); },
+  morseEncode:      function(e){ morseEncode(); },
+  morseDecode:      function(e){ morseDecode(); },
+  md5Hash:          function(e){ md5Hash(); },
+  sha1Hash:         function(e){ sha1Hash(); },
+  sha256Hash:       function(e){ sha256Hash(); },
+  sha512Hash:       function(e){ sha512Hash(); },
+  jsonFormat:       function(e){ jsonFormat(); },
+  jsonMinify:       function(e){ jsonMinify(); },
+  csvToJson:        function(e){ csvToJson(); },
+  jsonToCsv:        function(e){ jsonToCsv(); },
+  jsonToTable:      function(e){ jsonToTable(); },
+  csvToTable:       function(e){ csvToTable(); },
+  extractEmails:    function(e){ extractEmails(); },
+  extractUrls:      function(e){ extractUrls(); },
+  extractNumbers:   function(e){ extractNumbers(); },
+  jwtDecode:        function(e){ jwtDecode(); },
+  loremIpsum:       function(e){ loremIpsum(); },
+  uuidV4:           function(e){ uuidV4(); },
+  randomNumbers:    function(e){ randomNumbers(); },
+  numberSequence:   function(e){ numberSequence(); },
+  insertTimestamp:  function(e){ insertTimestamp(); },
+  insertDateTime:   function(e){ insertDateTime(); },
+  gotoLine:         function(e){ gotoLine(); },
+  selectLine:       function(e){ selectLine(); }
 };
 
-document.getElementById('toolbar').addEventListener('click', function(e) {
+/* ── Sidebar click handler ────────────────────────────────────────────── */
+document.getElementById('sidebar').addEventListener('click', function(e) {
   var btn = e.target.closest('[data-action]');
   if (!btn) return;
   var fn = actions[btn.dataset.action];
-  if (fn) fn(e);
+  if (!fn) return;
+  fn(e);
+  btn.classList.add('flash');
+  setTimeout(function(){ btn.classList.remove('flash'); }, 180);
 });
 
-// ── Textarea helpers ──────────────────────────────────────────────────────────
+/* ── Sidebar collapse ─────────────────────────────────────────────────── */
+document.querySelectorAll('.sb-head').forEach(function(head) {
+  head.addEventListener('click', function() {
+    var body = this.parentElement.querySelector('.sb-body');
+    var arrow = this.querySelector('.sb-arrow');
+    var isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : '';
+    arrow.textContent = isOpen ? '▸' : '▾';
+  });
+});
 
-// Tab key inserts a real tab character instead of moving focus
-D.addEventListener('keydown', function(e) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    var start = D.selectionStart;
-    var end   = D.selectionEnd;
-    D.value = D.value.substring(0, start) + '\t' + D.value.substring(end);
-    D.selectionStart = D.selectionEnd = start + 1;
+/* ── Sidebar filter ───────────────────────────────────────────────────── */
+document.getElementById('sb-search').addEventListener('input', function() {
+  var q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.sb-section').forEach(function(sec) {
+    var btns = sec.querySelectorAll('.sb-btn');
+    var any = false;
+    btns.forEach(function(btn) {
+      var match = !q || btn.textContent.toLowerCase().includes(q) || (btn.title||'').toLowerCase().includes(q);
+      btn.style.display = match ? '' : 'none';
+      if (match) any = true;
+    });
+    sec.style.display = (!q || any) ? '' : 'none';
+    if (q && any) {
+      sec.querySelector('.sb-body').style.display = '';
+      sec.querySelector('.sb-arrow').textContent = '▾';
+    }
+  });
+});
+
+/* ── Find & Replace panel ─────────────────────────────────────────────── */
+var _fpMatches = [], _fpIdx = -1;
+
+function _fpRegex() {
+  var q = document.getElementById('fp-find').value;
+  if (!q) return null;
+  var flags = document.getElementById('fp-case').checked ? 'g' : 'gi';
+  if (document.getElementById('fp-regex').checked) {
+    try { return new RegExp(q, flags); } catch(e) { return null; }
+  }
+  return new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), flags);
+}
+
+function _fpUpdate() {
+  _fpMatches = [];
+  var re = _fpRegex();
+  if (!re) { document.getElementById('fp-count').textContent=''; return; }
+  var text = D.value, m;
+  while ((m = re.exec(text)) !== null) {
+    _fpMatches.push({s: m.index, e: m.index+m[0].length});
+    if (m[0].length===0) re.lastIndex++;
+  }
+  document.getElementById('fp-count').textContent = _fpMatches.length + ' match' + (_fpMatches.length!==1?'es':'');
+}
+
+function _fpNav(dir) {
+  _fpUpdate();
+  if (_fpMatches.length===0) return;
+  _fpIdx = (_fpIdx + dir + _fpMatches.length) % _fpMatches.length;
+  var m = _fpMatches[_fpIdx];
+  D.focus(); D.setSelectionRange(m.s, m.e);
+  var lh = parseFloat(getComputedStyle(D).lineHeight)||19;
+  D.scrollTop = (D.value.substring(0,m.s).split('\n').length - 5) * lh;
+}
+
+function _fpReplaceOne() {
+  _fpUpdate();
+  var re = _fpRegex(); if(!re) return;
+  var repl = document.getElementById('fp-replace').value;
+  var text = D.value, m;
+  re.lastIndex = D.selectionStart;
+  if ((m = re.exec(text)) !== null) {
+    pushHistory();
+    D.value = text.substring(0,m.index) + repl + text.substring(m.index+m[0].length);
+    D.setSelectionRange(m.index, m.index+repl.length);
+    updateStatus(); _fpUpdate();
+  } else {
+    _fpNav(1);
+  }
+}
+
+function _fpReplaceAll() {
+  var re = _fpRegex(); if(!re) return;
+  pushHistory();
+  var repl = document.getElementById('fp-replace').value;
+  setVal(D.value.replace(re, repl));
+  _fpUpdate();
+}
+
+function openFind(withReplace) {
+  var panel = document.getElementById('find-panel');
+  var fpRepl = document.getElementById('fp-replace');
+  panel.hidden = false;
+  fpRepl.style.display = withReplace ? '' : 'none';
+  document.getElementById('fp-find').focus();
+  _fpUpdate();
+}
+
+function closeFind() {
+  document.getElementById('find-panel').hidden = true;
+  D.focus();
+}
+
+document.getElementById('fp-next').addEventListener('click', function(){ _fpNav(1); });
+document.getElementById('fp-prev').addEventListener('click', function(){ _fpNav(-1); });
+document.getElementById('fp-repl-one').addEventListener('click', _fpReplaceOne);
+document.getElementById('fp-repl-all').addEventListener('click', _fpReplaceAll);
+document.getElementById('fp-close').addEventListener('click', closeFind);
+document.getElementById('fp-find').addEventListener('input', function(){ _fpIdx=-1; _fpUpdate(); });
+document.getElementById('fp-find').addEventListener('keydown', function(e){
+  if(e.key==='Enter'){ e.shiftKey?_fpNav(-1):_fpNav(1); e.preventDefault(); }
+  if(e.key==='Escape') closeFind();
+});
+
+/* ── File handling ────────────────────────────────────────────────────── */
+D.addEventListener('dragover', function(e){ e.preventDefault(); D.style.outline='2px dashed var(--accent)'; });
+D.addEventListener('dragleave', function(){ D.style.outline=''; });
+D.addEventListener('drop', function(e){
+  e.preventDefault(); D.style.outline='';
+  var file = e.dataTransfer.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){ pushHistory(); setVal(ev.target.result); showToast('Loaded: '+file.name); };
+  reader.readAsText(file);
+});
+
+document.getElementById('btn-open-file').addEventListener('click', function(){
+  document.getElementById('file-open').click();
+});
+document.getElementById('file-open').addEventListener('change', function(){
+  var file = this.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){ pushHistory(); setVal(ev.target.result); showToast('Loaded: '+file.name); };
+  reader.readAsText(file);
+  this.value='';
+});
+
+/* ── Save / Copy / Clear ──────────────────────────────────────────────── */
+document.getElementById('btn-save').addEventListener('click', function(){
+  var blob = new Blob([getVal()],{type:'text/plain'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download='text.txt'; a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById('btn-copy').addEventListener('click', function(){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(getVal()).then(function(){ showToast('Copied to clipboard!'); });
+  } else {
+    D.select(); document.execCommand('copy'); showToast('Copied!');
   }
 });
 
-D.addEventListener('input', updateStatus);
+document.getElementById('btn-clear').addEventListener('click', function(){
+  if(getVal()===''){ return; }
+  pushHistory(); setVal(''); D.focus();
+});
 
-// ── Layout ────────────────────────────────────────────────────────────────────
+/* ── Undo / Redo buttons ──────────────────────────────────────────────── */
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-redo').addEventListener('click', redo);
 
-function resize() {
-  var toolbar = document.getElementById('toolbar');
-  var inputs  = document.getElementById('inputs');
-  var footer  = document.getElementById('footer');
-  var usedHeight = toolbar.offsetHeight +
-                   inputs.offsetHeight  +
-                   footer.offsetHeight  +
-                   6 * 5; // gaps + padding
-  D.style.height = Math.max(100, window.innerHeight - usedHeight) + 'px';
+/* ── Word wrap toggle ─────────────────────────────────────────────────── */
+document.getElementById('btn-wrap').addEventListener('click', function(){
+  var isWrap = D.style.whiteSpace === 'pre-wrap';
+  D.style.whiteSpace = isWrap ? 'pre' : 'pre-wrap';
+  this.style.background = isWrap ? '' : 'var(--accent)';
+  this.style.color = isWrap ? '' : '#fff';
+  this.style.borderColor = isWrap ? '' : 'var(--accent)';
+});
+
+/* ── Dark mode ────────────────────────────────────────────────────────── */
+function _applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  var btn = document.getElementById('btn-dark');
+  btn.textContent = theme==='dark' ? '☀ Light' : '🌙 Dark';
+  try{ localStorage.setItem('tmtTheme', theme); } catch(e){}
 }
 
-window.addEventListener('resize', resize);
-window.addEventListener('load', function() {
-  resize();
+document.getElementById('btn-dark').addEventListener('click', function(){
+  _applyTheme(document.documentElement.dataset.theme==='dark' ? '' : 'dark');
+});
+
+/* ── Find button ──────────────────────────────────────────────────────── */
+document.getElementById('btn-find').addEventListener('click', function(){
+  openFind(true);
+});
+
+/* ── Tab key in textarea ──────────────────────────────────────────────── */
+D.addEventListener('keydown', function(e){
+  if(e.key==='Tab'){
+    e.preventDefault();
+    var s=D.selectionStart, en=D.selectionEnd;
+    D.value = D.value.substring(0,s)+'\t'+D.value.substring(en);
+    D.selectionStart = D.selectionEnd = s+1;
+  }
+});
+
+/* ── Selection → status update ───────────────────────────────────────── */
+D.addEventListener('select', updateStatus);
+D.addEventListener('click', updateStatus);
+D.addEventListener('keyup', updateStatus);
+D.addEventListener('input', updateStatus);
+
+/* ── Global keyboard shortcuts ───────────────────────────────────────── */
+document.addEventListener('keydown', function(e){
+  var mod = e.ctrlKey || e.metaKey;
+  if(!mod) return;
+  if(e.key==='z'&&!e.shiftKey){ e.preventDefault(); undo(); }
+  else if((e.key==='z'&&e.shiftKey)||e.key==='y'){ e.preventDefault(); redo(); }
+  else if(e.key==='s'){ e.preventDefault(); document.getElementById('btn-save').click(); }
+  else if(e.key==='f'){ e.preventDefault(); openFind(false); }
+  else if(e.key==='h'){ e.preventDefault(); openFind(true); }
+  else if(e.key==='C'&&e.shiftKey){ e.preventDefault(); document.getElementById('btn-copy').click(); }
+});
+
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') closeFind();
+});
+
+/* ── Init ─────────────────────────────────────────────────────────────── */
+(function init(){
+  try{ _applyTheme(localStorage.getItem('tmtTheme')||''); } catch(e){ _applyTheme(''); }
+  _hist = [D.value]; _hIdx = 0; _syncUndoBtns();
   updateStatus();
   D.focus();
-});
+})();
 </script>
 </body>
 </html>
