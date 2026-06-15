@@ -366,7 +366,7 @@ body{
 var D      = document.getElementById('D');
 var Xin    = document.getElementById('X');
 var Yin    = document.getElementById('Y');
-var status = document.getElementById('status');
+var statusEl = document.getElementById('status');
 
 function X() { return Xin.value; }
 function Y() { return Yin.value; }
@@ -374,13 +374,17 @@ function Y() { return Yin.value; }
 /* ── History (undo / redo) ────────────────────────────────────────────── */
 var _hist = [''], _hIdx = 0;
 
-function pushHistory() {
+function _record(v) {
+  if (_hist[_hIdx] === v) return;           // already the current tip — skip dup
   _hist = _hist.slice(0, _hIdx + 1);
-  _hist.push(D.value);
+  _hist.push(v);
   if (_hist.length > 100) _hist.shift();
   _hIdx = _hist.length - 1;
   _syncUndoBtns();
 }
+
+// Called BEFORE an operation to capture the current (e.g. just-typed) text.
+function pushHistory() { _record(D.value); }
 
 function undo() {
   if (_hIdx > 0) { _hIdx--; D.value = _hist[_hIdx]; updateStatus(); _syncUndoBtns(); }
@@ -395,9 +399,9 @@ function _syncUndoBtns() {
 
 /* ── Core helpers ─────────────────────────────────────────────────────── */
 function getLines() { return D.value.split(/\r\n|\r|\n/); }
-function setLines(lines) { D.value = lines.join('\n'); updateStatus(); }
+function setLines(lines) { D.value = lines.join('\n'); _record(D.value); updateStatus(); }
 function getVal() { return D.value; }
-function setVal(v) { D.value = v; updateStatus(); }
+function setVal(v) { D.value = v; _record(v); updateStatus(); }
 
 function updateStatus() {
   var v = D.value;
@@ -406,7 +410,7 @@ function updateStatus() {
   var words = v.trim() === '' ? 0 : v.trim().split(/\s+/).length;
   var sel = D.selectionEnd - D.selectionStart;
   var selPart = sel > 0 ? ' · sel: ' + sel : '';
-  status.textContent = lines.length + ' line' + (lines.length === 1 ? '' : 's') +
+  statusEl.textContent = lines.length + ' line' + (lines.length === 1 ? '' : 's') +
     ' · ' + chars + ' char' + (chars === 1 ? '' : 's') +
     ' · ' + words + ' word' + (words === 1 ? '' : 's') + selPart;
 }
@@ -424,6 +428,7 @@ function insertAtCursor(text) {
   var s = D.selectionStart, e = D.selectionEnd;
   D.value = D.value.substring(0, s) + text + D.value.substring(e);
   D.selectionStart = D.selectionEnd = s + text.length;
+  _record(D.value);
   updateStatus();
 }
 
@@ -910,7 +915,7 @@ function md5Hash() {
 function _webCryptoHash(algo) {
   pushHistory();
   var v = getVal();
-  status.textContent = 'Hashing…';
+  statusEl.textContent = 'Hashing…';
   var buf = new TextEncoder().encode(v);
   crypto.subtle.digest(algo, buf).then(function(hashBuf){
     var hex = Array.from(new Uint8Array(hashBuf))
@@ -1248,6 +1253,7 @@ function _fpReplaceOne() {
   if ((m = re.exec(text)) !== null) {
     pushHistory();
     D.value = text.substring(0,m.index) + repl + text.substring(m.index+m[0].length);
+    _record(D.value);
     D.setSelectionRange(m.index, m.index+repl.length);
     updateStatus(); _fpUpdate();
   } else {
